@@ -58,7 +58,7 @@ def main(name, file):
         box[[1, 3]] /= height[i]  # normalize y
 
         with open('out/labels/' + label_name, 'a') as file:
-            file.write('%g, %.6f, %.6f, %.6f, %.6f\n' % (x['category_id'], *box))
+            file.write('%g %.6f %.6f %.6f %.6f\n' % (x['category_id'], *box))
 
     # Split data into train, test, and validate files
     file_name = sorted(file_name)
