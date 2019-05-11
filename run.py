@@ -35,10 +35,6 @@ def main(name, file):
         with open(name + '.txt', 'a') as file:
             file.write('%s\n' % file_name[i])
 
-        # shapes
-        with open(name + '.shapes', 'a') as file:
-            file.write('%g, %g\n' % (x['width'], x['height']))
-
     # Write *.names file
     for x in tqdm(data['categories'], desc='Names'):
         with open(name + '.names', 'a') as file:
@@ -60,7 +56,28 @@ def main(name, file):
         with open('out/labels/' + label_name, 'a') as file:
             file.write('%g, %.6f, %.6f, %.6f, %.6f\n' % (x['category_id'], *box))
 
+    # Split data into train, test, and validate files
+    file_name = sorted(file_name)
+    i, j, k = split(file_name, train=0.9, test=0.1, validate=0.0, shuffle=False)
+    datasets = {'train': i, 'test': j, 'val': k}
+    for key, item in datasets.items():
+        with open(name + '_' + key + '.txt', 'a') as file:
+            for i in item:
+                file.write('%s\n' % file_name[i])
+
     print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
+
+
+def split(x, train=0.9, test=0.1, validate=0.0, shuffle=False):  # split training data
+    n = len(x)
+    v = np.arange(n)
+    if shuffle:
+        np.random.shuffle(v)
+
+    i = round(n * train)  # train
+    j = round(n * test) + i  # test
+    k = round(n * validate) + j  # validate
+    return v[:i], v[i:j], v[j:k]
 
 
 if __name__ == '__main__':
