@@ -5,8 +5,8 @@ import shutil
 import numpy as np
 from tqdm import tqdm
 
-name = 'supermarket2'  # new dataset name
-file = '../supermarket2/export-coco.json'  # coco json to convert
+name = 'yolo'  # new dataset name
+file = '../data/coco.json'  # coco json to convert
 
 
 # Convert COCO JSON file into YOLO format labels -------------------------------
