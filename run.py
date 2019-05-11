@@ -58,7 +58,7 @@ def main(name, file):
         box[[1, 3]] /= height[i]  # normalize y
 
         with open('out/labels/' + label_name, 'a') as file:
-            file.write('%g, %.4f, %.4f, %.4f, %.4f\n' % (x['category_id'], *box))
+            file.write('%g, %.6f, %.6f, %.6f, %.6f\n' % (x['category_id'], *box))
 
     print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
 
