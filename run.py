@@ -6,7 +6,7 @@ import numpy as np
 from tqdm import tqdm
 
 name = 'supermarket2'  # new dataset name
-file = '/Users/glennjocher/Downloads/data/supermarket2/export-coco.json'  # coco json to convert
+file = '../supermarket2/export-coco.json'  # coco json to convert
 
 
 # Convert COCO JSON file into YOLO format labels -------------------------------
@@ -58,7 +58,7 @@ def main(name, file):
         box[[1, 3]] /= height[i]  # normalize y
 
         with open('out/labels/' + label_name, 'a') as file:
-            file.write('%g %.6f %.6f %.6f %.6f\n' % (x['category_id'], *box))
+            file.write('%g %.6f %.6f %.6f %.6f\n' % (x['category_id'] - 1, *box))
 
     # Split data into train, test, and validate files
     file_name = sorted(file_name)
