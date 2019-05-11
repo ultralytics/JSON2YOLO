@@ -35,6 +35,10 @@ def main(name, file):
         with open(name + '.txt', 'a') as file:
             file.write('%s\n' % file_name[i])
 
+        # shapes
+        with open(name + '.shapes', 'a') as file:
+            file.write('%g, %g\n' % (x['width'], x['height']))
+
     # Write *.names file
     for x in tqdm(data['categories'], desc='Names'):
         with open(name + '.names', 'a') as file:
