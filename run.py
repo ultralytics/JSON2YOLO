@@ -137,8 +137,8 @@ def convert_infolks_json(name, files, img_path):
     print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
 
 
-# Convert a JSON file into YOLO-format labels ----------------------------------
-def convert_a_json(name, files, img_path):
+# Convert vott JSON file into YOLO-format labels ----------------------------------
+def convert_vott_json(name, files, img_path):
     # Create folders
     path = make_folders(name)
 
@@ -221,7 +221,7 @@ if __name__ == '__main__':
                              files='../../Downloads/supermarket3/json/*.json',
                              img_path='../../Downloads/supermarket3/images/')
 
-    elif source is 'a':  # a
-        convert_a_json(name='a1',
+    elif source is 'vott':  # VoTT https://github.com/microsoft/VoTT
+        convert_vott_json(name='a1',
                        files='../../Downloads/a1/json/*.json',
                        img_path='../../Downloads/a1/images/')
