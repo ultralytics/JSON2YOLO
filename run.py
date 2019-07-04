@@ -75,14 +75,16 @@ def convert_infolks_json(name, files, img_path):
     data = []
     for file in glob.glob(files):
         with open(file) as f:
-            data.append(json.load(f))
+            jdata = json.load(f)
+            jdata['json_file'] = file
+            data.append(jdata)
 
     # Write images and shapes
     name = path + os.sep + name
     file_id, file_name, width, height, cat = [], [], [], [], []
     for i, x in enumerate(tqdm(data, desc='Files and Shapes')):
         file_id.append(i)
-        file_name.append(Path(x['path']).name)
+        file_name.append(Path(x['json_file']).name)
         f = glob.glob(img_path + Path(file_name[i]).stem + '.*')[0]
         img = Image.open(f)
 
@@ -174,6 +176,6 @@ if __name__ == '__main__':
     # file = '../supermarket2/export-coco.json'  # labelbox json to convert
     # convert_labelbox_json(name, file)
 
-    file = '../../Downloads/final grocery/*.json'  # infolks json folder to convert
-    img_path = '../../Downloads/GROCERY PROJECT FINAL OUTPUTS/RAW/'
+    file = '../../Downloads/supermarket3/json/*.json'  # infolks json folder to convert
+    img_path = '../../Downloads/supermarket3/images/'
     convert_infolks_json(name, file, img_path)
