@@ -83,8 +83,8 @@ def convert_infolks_json(name, files, img_path):
     file_id, file_name, width, height, cat = [], [], [], [], []
     for i, x in enumerate(tqdm(data, desc='Files and Shapes')):
         file_id.append(i)
-        file_name.append(Path(x['json_file']).name)
-        f = glob.glob(img_path + Path(file_name[i]).stem + '.*')[0]
+        f = glob.glob(img_path + Path(x['json_file']).stem + '.*')[0]
+        file_name.append(f)
         img = Image.open(f)
 
         s = img.size  # width, height
@@ -114,10 +114,7 @@ def convert_infolks_json(name, files, img_path):
 
     # Write labels file
     for i, x in enumerate(tqdm(data, desc='Annotations')):
-        image_name = file_name[i]
-
-        extension = image_name.split('.')[-1]
-        label_name = image_name.replace(extension, 'txt')
+        label_name = Path(file_name[i]).stem + '.txt'
 
         with open(path + '/labels/' + label_name, 'a') as file:
             for a in x['output']['objects']:
@@ -132,8 +129,7 @@ def convert_infolks_json(name, files, img_path):
                 file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
 
     # Split data into train, test, and validate files
-    file_name = [x.replace(x.split('.')[-1], 'png') for x in file_name]  # use .png for all
-    split_files(name, file_name, prefix_path='../' + Path(name).stem + '/images/')
+    split_files(name, file_name)
     print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
 
 
@@ -223,5 +219,5 @@ if __name__ == '__main__':
 
     elif source is 'vott':  # VoTT https://github.com/microsoft/VoTT
         convert_vott_json(name='a1',
-                       files='../../Downloads/a1/json/*.json',
-                       img_path='../../Downloads/a1/images/')
+                          files='../../Downloads/a1/json/*.json',
+                          img_path='../../Downloads/a1/images/')
