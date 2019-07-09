@@ -1,6 +1,27 @@
 import os
 import shutil
 import numpy as np
+from PIL import Image, ExifTags
+
+# Get orientation exif tag
+for orientation in ExifTags.TAGS.keys():
+    if ExifTags.TAGS[orientation] == 'Orientation':
+        break
+
+
+def exif_size(img):
+    # Returns exif-corrected PIL size
+    s = img.size  # (width, height)
+    try:
+        rotation = dict(img._getexif().items())[orientation]
+        if rotation == 6:  # rotation 270
+            s = (s[1], s[0])
+        elif rotation == 8:  # rotation 90
+            s = (s[1], s[0])
+    except:
+        None
+
+    return s
 
 
 def split_files(out_path, file_name, prefix_path=''):  # split training data

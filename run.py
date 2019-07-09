@@ -7,11 +7,6 @@ from tqdm import tqdm
 
 from utils import *
 
-# Get orientation exif tag
-for orientation in ExifTags.TAGS.keys():
-    if ExifTags.TAGS[orientation] == 'Orientation':
-        break
-
 
 # Convert Labelbox JSON file into YOLO-format labels ---------------------------
 def convert_labelbox_json(name, file):
@@ -87,16 +82,7 @@ def convert_infolks_json(name, files, img_path):
         file_name.append(f)
         img = Image.open(f)
 
-        s = img.size  # width, height
-        try:
-            exif = dict(img._getexif().items())
-            if exif[orientation] == 6:  # rotation 270
-                s = (s[1], s[0])
-            elif exif[orientation] == 8:  # rotation 90
-                s = (s[1], s[0])
-        except:
-            None
-
+        s = exif_size(img)  # (width, height)
         width.append(s[0])
         height.append(s[1])
 
