@@ -214,8 +214,8 @@ if __name__ == '__main__':
 
     elif source is 'infolks':  # Infolks https://infolks.info/
         convert_infolks_json(name='supermarket3',
-                             files='../../Downloads/grocery/jsons/*.json',
-                             img_path='../../Downloads/grocery/images/')
+                             files='../supermarket3/jsons/*.json',
+                             img_path='../supermarket3/images/')
 
     elif source is 'vott':  # VoTT https://github.com/microsoft/VoTT
         convert_vott_json(name='a1',
