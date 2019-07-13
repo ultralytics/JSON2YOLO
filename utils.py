@@ -47,9 +47,9 @@ def split_indices(x, train=0.9, test=0.1, validate=0.0, shuffle=True):  # split 
     return v[:i], v[i:j], v[j:k]  # return indices
 
 
-def make_folders(name):
+def make_folders():
     # Create folders
-    path = name + '_out'
+    path = 'out'
     if os.path.exists(path):
         shutil.rmtree(path)  # delete output folder
     os.makedirs(path)  # make new output folder
