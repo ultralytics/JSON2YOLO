@@ -50,8 +50,9 @@ def convert_labelbox_json(name, file):
         box[[0, 2]] /= width[i]  # normalize x
         box[[1, 3]] /= height[i]  # normalize y
 
-        with open('out/labels/' + label_name, 'a') as file:
-            file.write('%g %.6f %.6f %.6f %.6f\n' % (x['category_id'] - 1, *box))
+        if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
+            with open('out/labels/' + label_name, 'a') as file:
+                file.write('%g %.6f %.6f %.6f %.6f\n' % (x['category_id'] - 1, *box))
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
@@ -73,7 +74,7 @@ def convert_infolks_json(name, files, img_path):
 
     # Write images and shapes
     name = path + os.sep + name
-    file_name, wh, cat = [], [], []
+    file_id, file_name, wh, cat = [], [], [], []
     for x in tqdm(data, desc='Files and Shapes'):
         f = glob.glob(img_path + Path(x['json_file']).stem + '.*')[0]
         file_name.append(f)
@@ -102,7 +103,8 @@ def convert_infolks_json(name, files, img_path):
                 box[[0, 2]] /= wh[i][0]  # normalize x by width
                 box[[1, 3]] /= wh[i][1]  # normalize y by height
                 box = [box[[0, 2]].mean(), box[[1, 3]].mean(), box[2] - box[0], box[3] - box[1]]  # xywh
-                file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
+                if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
+                    file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
@@ -124,16 +126,18 @@ def convert_vott_json(name, files, img_path):
 
     # Write images and shapes
     name = path + os.sep + name
-    file_name, wh, cat = [], [], []
-    for x in tqdm(data, desc='Files and Shapes'):
-        f = glob.glob(img_path + Path(x['json_file']).stem + '.*')[0]
-        file_name.append(f)
-        wh.append(exif_size(Image.open(f)))  # (width, height)
-        cat.extend(a['classTitle'] for a in x['output']['objects'])  # categories
-
-        # filename
-        with open(name + '.txt', 'a') as file:
-            file.write('%s\n' % f)
+    file_id, file_name, wh, cat = [], [], [], []
+    for i, x in enumerate(tqdm(data, desc='Files and Shapes')):
+        file_id.append(i)
+        try:
+            f = glob.glob(img_path + Path(x['asset']['path']).name + '.*')[0]
+            file_name.append(f)
+            wh.append(exif_size(Image.open(f)))  # (width, height)
+            cat.extend(a['tags'][0] for a in x['regions'])  # categories
+        except:
+            print('Problem with ' + x['asset']['path'])
+            file_name.append('')
+            wh.append((0, 0))
 
     # Write *.names file
     names = sorted(np.unique(cat))
@@ -142,18 +146,27 @@ def convert_vott_json(name, files, img_path):
 
     # Write labels file
     for i, x in enumerate(tqdm(data, desc='Annotations')):
-        label_name = Path(file_name[i]).stem + '.txt'
+        if (len(file_name[i]) > 0) & (wh[i][0] > 0) & (wh[i][1] > 0):
 
-        with open(path + '/labels/' + label_name, 'a') as file:
-            for a in x['output']['objects']:
-                category_id = names.index(a['classTitle'])
+            # write file to image list
+            with open(name + '.txt', 'a') as file:
+                file.write('%s\n' % f)
 
-                # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
-                box = np.array(a['points']['exterior']).ravel()
-                box[[0, 2]] /= wh[i][0]  # normalize x by width
-                box[[1, 3]] /= wh[i][1]  # normalize y by height
-                box = [box[[0, 2]].mean(), box[[1, 3]].mean(), box[2] - box[0], box[3] - box[1]]  # xywh
-                file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
+            # write labelsfile
+            label_name = Path(file_name[i]).stem + '.txt'
+            with open(path + '/labels/' + label_name, 'a') as file:
+                for a in x['regions']:
+                    category_id = names.index(a['tags'][0])
+
+                    # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
+                    box = a['boundingBox']
+                    box = np.array([box['left'], box['top'], box['width'], box['height']]).ravel()
+                    box[[0, 2]] /= wh[i][0]  # normalize x by width
+                    box[[1, 3]] /= wh[i][1]  # normalize y by height
+                    box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2], box[3]]  # xywh
+
+                    if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
+                        file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
@@ -161,7 +174,7 @@ def convert_vott_json(name, files, img_path):
 
 
 if __name__ == '__main__':
-    source = 'infolks'
+    source = 'vott'
 
     if source is 'labelbox':  # Labelbox https://labelbox.com/
         convert_labelbox_json(name='supermarket2',
@@ -173,6 +186,6 @@ if __name__ == '__main__':
                              img_path='../supermarket3/images/')
 
     elif source is 'vott':  # VoTT https://github.com/microsoft/VoTT
-        convert_vott_json(name='a1',
-                          files='../../Downloads/data1/json/*.json',
+        convert_vott_json(name='name',
+                          files='../../Downloads/data1/*.json',
                           img_path='../../Downloads/data1/vott-json-export/')  # images folder

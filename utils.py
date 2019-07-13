@@ -25,6 +25,7 @@ def exif_size(img):
 
 
 def split_files(out_path, file_name, prefix_path=''):  # split training data
+    file_name = list(filter(lambda x: len(x) > 0, file_name))
     file_name = sorted(file_name)
     i, j, k = split_indices(file_name, train=0.9, test=0.1, validate=0.0)
     datasets = {'train': i, 'test': j, 'val': k}
