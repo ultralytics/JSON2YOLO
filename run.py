@@ -115,6 +115,7 @@ def convert_infolks_json(name, files, img_path):
 def convert_vott_json(name, files, img_path):
     # Create folders
     path = make_folders()
+    name = path + os.sep + name
 
     # Import json
     data = []
@@ -124,20 +125,13 @@ def convert_vott_json(name, files, img_path):
             jdata['json_file'] = file
             data.append(jdata)
 
-    # Write images and shapes
-    name = path + os.sep + name
-    file_id, file_name, wh, cat = [], [], [], []
+    # Get all categories
+    file_name, wh, cat = [], [], []
     for i, x in enumerate(tqdm(data, desc='Files and Shapes')):
-        file_id.append(i)
         try:
-            f = glob.glob(img_path + Path(x['asset']['path']).name + '.*')[0]
-            file_name.append(f)
-            wh.append(exif_size(Image.open(f)))  # (width, height)
             cat.extend(a['tags'][0] for a in x['regions'])  # categories
         except:
-            print('Problem with ' + x['asset']['path'])
-            file_name.append('')
-            wh.append((0, 0))
+            pass
 
     # Write *.names file
     names = sorted(np.unique(cat))
@@ -145,28 +139,45 @@ def convert_vott_json(name, files, img_path):
         [file.write('%s\n' % a) for a in names]
 
     # Write labels file
+    count1, count2 = 0, 0
+    missing_images = []
     for i, x in enumerate(tqdm(data, desc='Annotations')):
-        if (len(file_name[i]) > 0) & (wh[i][0] > 0) & (wh[i][1] > 0):
 
-            # write file to image list
-            with open(name + '.txt', 'a') as file:
-                file.write('%s\n' % f)
+        f = glob.glob(img_path + x['asset']['name'] + '.*')
+        if len(f):
+            f = f[0]
+            file_name.append(f)
+            wh = exif_size(Image.open(f))  # (width, height)
 
-            # write labelsfile
-            label_name = Path(file_name[i]).stem + '.txt'
-            with open(path + '/labels/' + label_name, 'a') as file:
-                for a in x['regions']:
-                    category_id = names.index(a['tags'][0])
+            count1 += 1
+            if (len(f) > 0) and (wh[0] > 0) and (wh[1] > 0):
+                count2 += 1
 
-                    # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
-                    box = a['boundingBox']
-                    box = np.array([box['left'], box['top'], box['width'], box['height']]).ravel()
-                    box[[0, 2]] /= wh[i][0]  # normalize x by width
-                    box[[1, 3]] /= wh[i][1]  # normalize y by height
-                    box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2], box[3]]  # xywh
+                # append filename to list
+                with open(name + '.txt', 'a') as file:
+                    file.write('%s\n' % f)
 
-                    if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
-                        file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
+                # write labelsfile
+                label_name = Path(f).stem + '.txt'
+                with open(path + '/labels/' + label_name, 'a') as file:
+                    for a in x['regions']:
+                        category_id = names.index(a['tags'][0])
+
+                        # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
+                        box = a['boundingBox']
+                        box = np.array([box['left'], box['top'], box['width'], box['height']]).ravel()
+                        box[[0, 2]] /= wh[0]  # normalize x by width
+                        box[[1, 3]] /= wh[1]  # normalize y by height
+                        box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2], box[3]]  # xywh
+
+                        if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
+                            file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
+        else:
+            missing_images.append(x['asset']['name'])
+
+    print('Attempted %g json imports, found %g corresponding images, imported %g annotations successfully' %
+          (i, count1, count2))
+    print(missing_images)
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
@@ -186,6 +197,6 @@ if __name__ == '__main__':
                              img_path='../supermarket3/images/')
 
     elif source is 'vott':  # VoTT https://github.com/microsoft/VoTT
-        convert_vott_json(name='name',
+        convert_vott_json(name='knife',
                           files='../../Downloads/data1/*.json',
-                          img_path='../../Downloads/data1/vott-json-export/')  # images folder
+                          img_path='../../Downloads/data1/images/')  # images folder
