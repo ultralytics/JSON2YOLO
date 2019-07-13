@@ -29,9 +29,10 @@ def split_files(out_path, file_name, prefix_path=''):  # split training data
     i, j, k = split_indices(file_name, train=0.9, test=0.1, validate=0.0)
     datasets = {'train': i, 'test': j, 'val': k}
     for key, item in datasets.items():
-        with open(out_path + '_' + key + '.txt', 'a') as file:
-            for i in item:
-                file.write('%s%s\n' % (prefix_path, file_name[i]))
+        if item.any():
+            with open(out_path + '_' + key + '.txt', 'a') as file:
+                for i in item:
+                    file.write('%s%s\n' % (prefix_path, file_name[i]))
 
 
 def split_indices(x, train=0.9, test=0.1, validate=0.0, shuffle=True):  # split training data
