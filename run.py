@@ -45,7 +45,7 @@ def convert_labelbox_json(name, file):
         label_name = Path(file_name[i]).stem + '.txt'
 
         # The Labelbox bounding box format is [top left x, top left y, width, height]
-        box = np.array(x['bbox'])
+        box = np.array(x['bbox'],dtype=np.float64)
         box[:2] += box[2:] / 2  # xy top-left corner to center
         box[[0, 2]] /= width[i]  # normalize x
         box[[1, 3]] /= height[i]  # normalize y
