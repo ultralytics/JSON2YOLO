@@ -45,7 +45,7 @@ def convert_labelbox_json(name, file):
         label_name = Path(file_name[i]).stem + '.txt'
 
         # The Labelbox bounding box format is [top left x, top left y, width, height]
-        box = np.array(x['bbox'],dtype=np.float64)
+        box = np.array(x['bbox'], dtype=np.float64)
         box[:2] += box[2:] / 2  # xy top-left corner to center
         box[[0, 2]] /= width[i]  # normalize x
         box[[1, 3]] /= height[i]  # normalize y
@@ -143,7 +143,11 @@ def convert_vott_json(name, files, img_path):
     missing_images = []
     for i, x in enumerate(tqdm(data, desc='Annotations')):
 
-        f = glob.glob(img_path + x['asset']['name'] + '.*')
+        # if x['asset']['name'] in '15%20fit%20steel%20knife%20030%20Degree.MP4#t=9.333333':
+        #     print(i, x['json_file'])
+        #     print('stop')
+
+        f = glob.glob(img_path + x['asset']['name'] + '.jpg')
         if len(f):
             f = f[0]
             file_name.append(f)
