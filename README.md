@@ -4,7 +4,7 @@ This directory contains software developed by Ultralytics LLC, and **is freely a
 
 # Description
 
-The https://github.com/ultralytics/COCO2YOLO repo contains code to convert COCO JSON datasets into YOLO (darknet) format. The code works on Linux, MacOS and Windows.
+The https://github.com/ultralytics/COCO2YOLO repo contains code to convert JSON datasets into YOLO (darknet) format. The code works on Linux, MacOS and Windows.
 
 # Requirements
 
