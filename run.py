@@ -197,6 +197,7 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
             jsons.append(os.path.join(dirpath, filename))
 
     # Import json
+    n1, n2 = 0, 0
     for json_file in sorted(jsons):
         with open(json_file) as f:
             data = json.load(f)
@@ -213,7 +214,6 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
             [f.write('%s\n' % a) for a in names]
 
         # Write labels file
-        n1, n2 = 0, 0
         missing_images, file_name = [], []
         for i, x in enumerate(tqdm(data['_via_img_metadata'].values(), desc='Processing %s' % json_file)):
 
@@ -226,8 +226,6 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
                 n1 += 1  # all images
                 if len(f) > 0 and wh[0] > 0 and wh[1] > 0:
                     try:
-                        n2 += 1  # correct images
-
                         # write labelsfile
                         label_name = Path(f).stem + '.txt'
                         with open(path + '/labels/' + label_name, 'a') as file:
@@ -263,8 +261,10 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
                             img = cv2.resize(img, (int(w * r), int(h * r)), interpolation=cv2.INTER_AREA)
                         cv2.imwrite(path + '/images/' + Path(f).name, img)
 
+                        n2 += 1  # correct images
+
                     except:
-                        print('problem with %s' % f)
+                        pass #print('problem with %s' % f)
             else:
                 missing_images.append(x['asset']['name'])
 
