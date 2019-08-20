@@ -197,12 +197,15 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
             jsons.append(os.path.join(dirpath, filename))
 
     # Import json
-    for json_file in jsons:
+    for json_file in sorted(jsons):
         with open(json_file) as f:
             data = json.load(f)
 
         # Get classes
-        classes = list(data['_via_attributes']['region']['Class']['options'].values())  # classes
+        try:
+            classes = list(data['_via_attributes']['region']['class']['options'].values())  # classes
+        except:
+            classes = list(data['_via_attributes']['region']['Class']['options'].values())  # classes
 
         # Write *.names file
         names = pd.unique(classes)  # preserves sort order
@@ -212,7 +215,7 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
         # Write labels file
         n1, n2 = 0, 0
         missing_images, file_name = [], []
-        for i, x in enumerate(tqdm(data['_via_img_metadata'].values(), desc='Annotations %s' % json_file)):
+        for i, x in enumerate(tqdm(data['_via_img_metadata'].values(), desc='Processing %s' % json_file)):
 
             f = glob.glob(str(Path(json_file).parent / x['filename']))  # image file
             if len(f):
@@ -222,42 +225,51 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
 
                 n1 += 1  # all images
                 if len(f) > 0 and wh[0] > 0 and wh[1] > 0:
-                    n2 += 1  # correct images
+                    try:
+                        n2 += 1  # correct images
 
-                    # append filename to list
-                    with open(name + '.txt', 'a') as file:
-                        file.write('%s\n' % f)
+                        # write labelsfile
+                        label_name = Path(f).stem + '.txt'
+                        with open(path + '/labels/' + label_name, 'a') as file:
+                            for a in x['regions']:
+                                try:
+                                    category_id = int(a['region_attributes']['class'])
+                                except:
+                                    category_id = int(a['region_attributes']['Class'])
 
-                    # write image
-                    img_size = 1024  # resize to maximum
-                    img = cv2.imread(f)  # BGR
-                    assert img is not None, 'Image Not Found ' + f
-                    r = img_size / max(img.shape)  # size ratio
-                    if r < 1:  # downsize if necessary
-                        h, w, _ = img.shape
-                        img = cv2.resize(img, (int(w * r), int(h * r)), interpolation=cv2.INTER_AREA)
-                    cv2.imwrite(path + '/images/' + Path(f).name, img)
+                                # bounding box format is [x-min, y-min, x-max, y-max]
+                                box = a['shape_attributes']
+                                box = np.array([box['x'], box['y'], box['width'], box['height']],
+                                               dtype=np.float32).ravel()
+                                box[[0, 2]] /= wh[0]  # normalize x by width
+                                box[[1, 3]] /= wh[1]  # normalize y by height
+                                box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2],
+                                       box[3]]  # xywh (left-top to center x-y)
 
-                    # write labelsfile
-                    label_name = Path(f).stem + '.txt'
-                    with open(path + '/labels/' + label_name, 'a') as file:
-                        for a in x['regions']:
-                            category_id = int(a['region_attributes']['Class'])
+                                if box[2] > 0. and box[3] > 0.:  # if w > 0 and h > 0
+                                    file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
 
-                            # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
-                            box = a['shape_attributes']
-                            box = np.array([box['x'], box['y'], box['width'], box['height']], dtype=np.float32).ravel()
-                            box[[0, 2]] /= wh[0]  # normalize x by width
-                            box[[1, 3]] /= wh[1]  # normalize y by height
-                            box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2],
-                                   box[3]]  # xywh (left-top to center x-y)
+                        # append filename to list
+                        with open(name + '.txt', 'a') as file:
+                            file.write('%s\n' % f)
 
-                            if box[2] > 0. and box[3] > 0.:  # if w > 0 and h > 0
-                                file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
+                        # write image
+                        img_size = 1024  # resize to maximum
+                        img = cv2.imread(f)  # BGR
+                        assert img is not None, 'Image Not Found ' + f
+                        r = img_size / max(img.shape)  # size ratio
+                        if r < 1:  # downsize if necessary
+                            h, w, _ = img.shape
+                            img = cv2.resize(img, (int(w * r), int(h * r)), interpolation=cv2.INTER_AREA)
+                        cv2.imwrite(path + '/images/' + Path(f).name, img)
+
+                    except:
+                        print('problem with %s' % f)
             else:
                 missing_images.append(x['asset']['name'])
 
-    print('Found %g labels, found %g images, imported %g annotations successfully' % (i + 1, n1, n2))
+    print('\nFound %g labels in %g JSONs, found %g images, imported %g annotations successfully' %
+          (i + 1, len(jsons), n1, n2))
     if len(missing_images):
         print('WARNING, missing images:', missing_images)
 
