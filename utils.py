@@ -55,4 +55,5 @@ def make_folders():
         shutil.rmtree(path)  # delete output folder
     os.makedirs(path)  # make new output folder
     os.makedirs(path + os.sep + 'labels')  # make new labels folder
+    os.makedirs(path + os.sep + 'images')  # make new labels folder
     return path

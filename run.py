@@ -1,8 +1,9 @@
-import json
 import glob
-from PIL import Image, ExifTags
+import json
 from pathlib import Path
+import cv2
 
+import pandas as pd
 from tqdm import tqdm
 
 from utils import *
@@ -111,7 +112,7 @@ def convert_infolks_json(name, files, img_path):
     print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
 
 
-# Convert vott JSON file into YOLO-format labels ----------------------------------
+# Convert vott JSON file into YOLO-format labels -------------------------------
 def convert_vott_json(name, files, img_path):
     # Create folders
     path = make_folders()
@@ -134,18 +135,14 @@ def convert_vott_json(name, files, img_path):
             pass
 
     # Write *.names file
-    names = sorted(np.unique(cat))
+    names = sorted(pd.unique(cat))
     with open(name + '.names', 'a') as file:
         [file.write('%s\n' % a) for a in names]
 
     # Write labels file
-    count1, count2 = 0, 0
+    n1, n2 = 0, 0
     missing_images = []
     for i, x in enumerate(tqdm(data, desc='Annotations')):
-
-        # if x['asset']['name'] in '15%20fit%20steel%20knife%20030%20Degree.MP4#t=9.333333':
-        #     print(i, x['json_file'])
-        #     print('stop')
 
         f = glob.glob(img_path + x['asset']['name'] + '.jpg')
         if len(f):
@@ -153,9 +150,9 @@ def convert_vott_json(name, files, img_path):
             file_name.append(f)
             wh = exif_size(Image.open(f))  # (width, height)
 
-            count1 += 1
+            n1 += 1
             if (len(f) > 0) and (wh[0] > 0) and (wh[1] > 0):
-                count2 += 1
+                n2 += 1
 
                 # append filename to list
                 with open(name + '.txt', 'a') as file:
@@ -179,9 +176,90 @@ def convert_vott_json(name, files, img_path):
         else:
             missing_images.append(x['asset']['name'])
 
-    print('Attempted %g json imports, found %g corresponding images, imported %g annotations successfully' %
-          (i, count1, count2))
-    print(missing_images)
+    print('Attempted %g json imports, found %g images, imported %g annotations successfully' % (i, n1, n2))
+    if len(missing_images):
+        print('WARNING, missing images:', missing_images)
+
+    # Split data into train, test, and validate files
+    split_files(name, file_name)
+    print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
+
+
+# Convert ath JSON file into YOLO-format labels --------------------------------
+def convert_ath_json(name, dir):  # dir contains json annotations and images
+    # Create folders
+    path = make_folders()
+    name = path + os.sep + name
+
+    jsons = []
+    for dirpath, dirnames, filenames in os.walk(dir):
+        for filename in [f for f in filenames if f.lower().endswith('.json')]:
+            jsons.append(os.path.join(dirpath, filename))
+
+    # Import json
+    for json_file in jsons:
+        with open(json_file) as f:
+            data = json.load(f)
+
+        # Get classes
+        classes = list(data['_via_attributes']['region']['Class']['options'].values())  # classes
+
+        # Write *.names file
+        names = pd.unique(classes)  # preserves sort order
+        with open(name + '.names', 'a') as f:
+            [f.write('%s\n' % a) for a in names]
+
+        # Write labels file
+        n1, n2 = 0, 0
+        missing_images, file_name = [], []
+        for i, x in enumerate(tqdm(data['_via_img_metadata'].values(), desc='Annotations %s' % json_file)):
+
+            f = glob.glob(str(Path(json_file).parent / x['filename']))  # image file
+            if len(f):
+                f = f[0]
+                file_name.append(f)
+                wh = exif_size(Image.open(f))  # (width, height)
+
+                n1 += 1  # all images
+                if len(f) > 0 and wh[0] > 0 and wh[1] > 0:
+                    n2 += 1  # correct images
+
+                    # append filename to list
+                    with open(name + '.txt', 'a') as file:
+                        file.write('%s\n' % f)
+
+                    # write image
+                    img_size = 1024  # resize to maximum
+                    img = cv2.imread(f)  # BGR
+                    assert img is not None, 'Image Not Found ' + f
+                    r = img_size / max(img.shape)  # size ratio
+                    if r < 1:  # downsize if necessary
+                        h, w, _ = img.shape
+                        img = cv2.resize(img, (int(w * r), int(h * r)), interpolation=cv2.INTER_AREA)
+                    cv2.imwrite(path + '/images/' + Path(f).name, img)
+
+                    # write labelsfile
+                    label_name = Path(f).stem + '.txt'
+                    with open(path + '/labels/' + label_name, 'a') as file:
+                        for a in x['regions']:
+                            category_id = int(a['region_attributes']['Class'])
+
+                            # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
+                            box = a['shape_attributes']
+                            box = np.array([box['x'], box['y'], box['width'], box['height']], dtype=np.float32).ravel()
+                            box[[0, 2]] /= wh[0]  # normalize x by width
+                            box[[1, 3]] /= wh[1]  # normalize y by height
+                            box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2],
+                                   box[3]]  # xywh (left-top to center x-y)
+
+                            if box[2] > 0. and box[3] > 0.:  # if w > 0 and h > 0
+                                file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
+            else:
+                missing_images.append(x['asset']['name'])
+
+    print('Found %g labels, found %g images, imported %g annotations successfully' % (i + 1, n1, n2))
+    if len(missing_images):
+        print('WARNING, missing images:', missing_images)
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
@@ -189,7 +267,7 @@ def convert_vott_json(name, files, img_path):
 
 
 if __name__ == '__main__':
-    source = 'vott'
+    source = 'ath'
 
     if source is 'labelbox':  # Labelbox https://labelbox.com/
         convert_labelbox_json(name='supermarket2',
@@ -201,6 +279,10 @@ if __name__ == '__main__':
                              img_path='../supermarket3/images/')
 
     elif source is 'vott':  # VoTT https://github.com/microsoft/VoTT
-        convert_vott_json(name='knife',
-                          files='../../Downloads/data1/*.json',
-                          img_path='../../Downloads/data1/images/')  # images folder
+        convert_vott_json(name='data',
+                          files='../../Downloads/athena_day/20190715/*.json',
+                          img_path='../../Downloads/athena_day/20190715/')  # images folder
+
+    elif source is 'ath':  # ath format
+        convert_ath_json(name='data',
+                         dir='../../Downloads/athena/')  # images folder
