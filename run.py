@@ -197,7 +197,8 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
             jsons.append(os.path.join(dirpath, filename))
 
     # Import json
-    n1, n2 = 0, 0
+    n1, n2, n3 = 0, 0, 0
+    missing_images, file_name = [], []
     for json_file in sorted(jsons):
         with open(json_file) as f:
             data = json.load(f)
@@ -214,10 +215,10 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
             [f.write('%s\n' % a) for a in names]
 
         # Write labels file
-        missing_images, file_name = [], []
         for i, x in enumerate(tqdm(data['_via_img_metadata'].values(), desc='Processing %s' % json_file)):
 
-            f = glob.glob(str(Path(json_file).parent / x['filename']))  # image file
+            image_file = str(Path(json_file).parent / x['filename'])
+            f = glob.glob(image_file)  # image file
             if len(f):
                 f = f[0]
                 file_name.append(f)
@@ -225,10 +226,10 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
 
                 n1 += 1  # all images
                 if len(f) > 0 and wh[0] > 0 and wh[1] > 0:
+                    label_file = path + '/labels/' + Path(f).stem + '.txt'
+
                     try:
-                        # write labelsfile
-                        label_name = Path(f).stem + '.txt'
-                        with open(path + '/labels/' + label_name, 'a') as file:
+                        with open(label_file, 'a') as file:  # write labelsfile
                             for a in x['regions']:
                                 try:
                                     category_id = int(a['region_attributes']['class'])
@@ -246,10 +247,7 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
 
                                 if box[2] > 0. and box[3] > 0.:  # if w > 0 and h > 0
                                     file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
-
-                        # append filename to list
-                        with open(name + '.txt', 'a') as file:
-                            file.write('%s\n' % f)
+                                    n3 += 1
 
                         # write image
                         img_size = 1024  # resize to maximum
@@ -259,17 +257,24 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
                         if r < 1:  # downsize if necessary
                             h, w, _ = img.shape
                             img = cv2.resize(img, (int(w * r), int(h * r)), interpolation=cv2.INTER_AREA)
-                        cv2.imwrite(path + '/images/' + Path(f).name, img)
+                        success = cv2.imwrite(path + '/images/' + Path(f).name, img)
 
-                        n2 += 1  # correct images
+                        if success:
+                            # append filename to list
+                            with open(name + '.txt', 'a') as file:
+                                file.write('%s\n' % f)
+                            n2 += 1  # correct images
 
                     except:
-                        pass #print('problem with %s' % f)
-            else:
-                missing_images.append(x['asset']['name'])
+                        os.system('rm %s' % label_file)
+                        print('problem with %s' % f)
 
-    print('\nFound %g labels in %g JSONs, found %g images, imported %g annotations successfully' %
-          (i + 1, len(jsons), n1, n2))
+            else:
+                missing_images.append(image_file)
+
+    nm = len(missing_images)  # number missing
+    print('\nFound %g JSONs with %g labels over %g images. Found %g images, labelled %g images successfully' %
+          (len(jsons), n3, n1, n1 - nm, n2))
     if len(missing_images):
         print('WARNING, missing images:', missing_images)
 
