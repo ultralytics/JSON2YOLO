@@ -1,7 +1,9 @@
 import os
 import shutil
+from pathlib import Path
+
 import numpy as np
-from PIL import Image, ExifTags
+from PIL import ExifTags
 
 # Get orientation exif tag
 for orientation in ExifTags.TAGS.keys():
@@ -22,6 +24,21 @@ def exif_size(img):
         None
 
     return s
+
+
+def split_rows_simple(file):  # split training data
+    # splits one textfile into 3 smaller ones based upon train, test, val ratios
+    with open(file) as f:
+        lines = f.readlines()
+
+    s = Path(file).suffix
+    lines = sorted(list(filter(lambda x: len(x) > 0, lines)))
+    i, j, k = split_indices(lines, train=0.9, test=0.1, validate=0.0)
+    for k, v in {'train': i, 'test': j, 'val': k}.items():  # key, value pairs
+        if v.any():
+            new_file = file.replace(s, '_' + k + s)
+            with open(new_file, 'a') as f:
+                f.writelines([lines[i] for i in v])
 
 
 def split_files(out_path, file_name, prefix_path=''):  # split training data
@@ -50,10 +67,23 @@ def split_indices(x, train=0.9, test=0.1, validate=0.0, shuffle=True):  # split 
 
 def make_folders():
     # Create folders
-    path = 'out'
+    path = '../out'
     if os.path.exists(path):
         shutil.rmtree(path)  # delete output folder
     os.makedirs(path)  # make new output folder
     os.makedirs(path + os.sep + 'labels')  # make new labels folder
     os.makedirs(path + os.sep + 'images')  # make new labels folder
     return path
+
+
+def write_data_data(fname='data.data', nc=80):
+    # write darknet *.data file
+    lines = ['classes = %g\n' % nc,
+             'train =../out/data_train.txt\n',
+             'valid =../out/data_test.txt\n',
+             'names =../out/data.names\n',
+             'backup = backup/\n',
+             'eval = coco\n']
+
+    with open(fname, 'a') as f:
+        f.writelines(lines)

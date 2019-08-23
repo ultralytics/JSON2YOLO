@@ -1,10 +1,10 @@
 import glob
 import json
-from pathlib import Path
-import cv2
 
+import cv2
 import pandas as pd
 from tqdm import tqdm
+from PIL import Image
 
 from utils import *
 
@@ -186,10 +186,9 @@ def convert_vott_json(name, files, img_path):
 
 
 # Convert ath JSON file into YOLO-format labels --------------------------------
-def convert_ath_json(name, dir):  # dir contains json annotations and images
+def convert_ath_json(dir):  # dir contains json annotations and images
     # Create folders
     path = make_folders()
-    name = path + os.sep + name
 
     jsons = []
     for dirpath, dirnames, filenames in os.walk(dir):
@@ -203,16 +202,16 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
         with open(json_file) as f:
             data = json.load(f)
 
-        # Get classes
-        try:
-            classes = list(data['_via_attributes']['region']['class']['options'].values())  # classes
-        except:
-            classes = list(data['_via_attributes']['region']['Class']['options'].values())  # classes
+        # # Get classes
+        # try:
+        #     classes = list(data['_via_attributes']['region']['class']['options'].values())  # classes
+        # except:
+        #     classes = list(data['_via_attributes']['region']['Class']['options'].values())  # classes
 
-        # Write *.names file
-        names = pd.unique(classes)  # preserves sort order
-        with open(name + '.names', 'a') as f:
-            [f.write('%s\n' % a) for a in names]
+        # # Write *.names file
+        # names = pd.unique(classes)  # preserves sort order
+        # with open('out/data.names', 'w') as f:
+        #     [f.write('%s\n' % a) for a in names]
 
         # Write labels file
         for i, x in enumerate(tqdm(data['_via_img_metadata'].values(), desc='Processing %s' % json_file)):
@@ -231,10 +230,11 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
                     try:
                         with open(label_file, 'a') as file:  # write labelsfile
                             for a in x['regions']:
-                                try:
-                                    category_id = int(a['region_attributes']['class'])
-                                except:
-                                    category_id = int(a['region_attributes']['Class'])
+                                # try:
+                                #     category_id = int(a['region_attributes']['class'])
+                                # except:
+                                #     category_id = int(a['region_attributes']['Class'])
+                                category_id = 0  # single-class
 
                                 # bounding box format is [x-min, y-min, x-max, y-max]
                                 box = a['shape_attributes']
@@ -257,12 +257,11 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
                         if r < 1:  # downsize if necessary
                             h, w, _ = img.shape
                             img = cv2.resize(img, (int(w * r), int(h * r)), interpolation=cv2.INTER_AREA)
-                        success = cv2.imwrite(path + '/images/' + Path(f).name, img)
 
-                        if success:
-                            # append filename to list
-                            with open(name + '.txt', 'a') as file:
-                                file.write('%s\n' % f)
+                        ifile = path + '/images/' + Path(f).name
+                        if cv2.imwrite(ifile, img):  # if success append image to list
+                            with open('out/data.txt', 'a') as file:
+                                file.write('%s\n' % ifile)
                             n2 += 1  # correct images
 
                     except:
@@ -278,8 +277,14 @@ def convert_ath_json(name, dir):  # dir contains json annotations and images
     if len(missing_images):
         print('WARNING, missing images:', missing_images)
 
+    # Write *.names file
+    names = ['knife']  # preserves sort order
+    with open('out/data.names', 'w') as f:
+        [f.write('%s\n' % a) for a in names]
+
     # Split data into train, test, and validate files
-    split_files(name, file_name)
+    split_rows_simple('out/data.txt')
+    write_data_data('out/data.data', nc=1)
     print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
 
 
@@ -301,5 +306,7 @@ if __name__ == '__main__':
                           img_path='../../Downloads/athena_day/20190715/')  # images folder
 
     elif source is 'ath':  # ath format
-        convert_ath_json(name='data',
-                         dir='../../Downloads/athena/')  # images folder
+        convert_ath_json(dir='../../Downloads/athena/')  # images folder
+
+    # zip results
+    os.system('zip -r out.zip out')
