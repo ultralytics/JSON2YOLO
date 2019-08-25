@@ -186,12 +186,12 @@ def convert_vott_json(name, files, img_path):
 
 
 # Convert ath JSON file into YOLO-format labels --------------------------------
-def convert_ath_json(dir):  # dir contains json annotations and images
+def convert_ath_json(json_dir):  # dir contains json annotations and images
     # Create folders
-    path = make_folders()
+    dir = make_folders()  # output directory
 
     jsons = []
-    for dirpath, dirnames, filenames in os.walk(dir):
+    for dirpath, dirnames, filenames in os.walk(json_dir):
         for filename in [f for f in filenames if f.lower().endswith('.json')]:
             jsons.append(os.path.join(dirpath, filename))
 
@@ -210,7 +210,7 @@ def convert_ath_json(dir):  # dir contains json annotations and images
 
         # # Write *.names file
         # names = pd.unique(classes)  # preserves sort order
-        # with open('out/data.names', 'w') as f:
+        # with open(dir + 'data.names', 'w') as f:
         #     [f.write('%s\n' % a) for a in names]
 
         # Write labels file
@@ -225,8 +225,9 @@ def convert_ath_json(dir):  # dir contains json annotations and images
 
                 n1 += 1  # all images
                 if len(f) > 0 and wh[0] > 0 and wh[1] > 0:
-                    label_file = path + '/labels/' + Path(f).stem + '.txt'
+                    label_file = dir + 'labels/' + Path(f).stem + '.txt'
 
+                    nlabels = 0
                     try:
                         with open(label_file, 'a') as file:  # write labelsfile
                             for a in x['regions']:
@@ -248,6 +249,12 @@ def convert_ath_json(dir):  # dir contains json annotations and images
                                 if box[2] > 0. and box[3] > 0.:  # if w > 0 and h > 0
                                     file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
                                     n3 += 1
+                                    nlabels += 1
+
+                        if nlabels == 0:  # remove non-labelled images from dataset
+                            os.system('rm %s' % label_file)
+                            # print('no labels for %s' % f)
+                            continue  # next file
 
                         # write image
                         img_size = 1024  # resize to maximum
@@ -258,9 +265,9 @@ def convert_ath_json(dir):  # dir contains json annotations and images
                             h, w, _ = img.shape
                             img = cv2.resize(img, (int(w * r), int(h * r)), interpolation=cv2.INTER_AREA)
 
-                        ifile = path + '/images/' + Path(f).name
+                        ifile = dir + 'images/' + Path(f).name
                         if cv2.imwrite(ifile, img):  # if success append image to list
-                            with open('out/data.txt', 'a') as file:
+                            with open(dir + 'data.txt', 'a') as file:
                                 file.write('%s\n' % ifile)
                             n2 += 1  # correct images
 
@@ -279,13 +286,13 @@ def convert_ath_json(dir):  # dir contains json annotations and images
 
     # Write *.names file
     names = ['knife']  # preserves sort order
-    with open('out/data.names', 'w') as f:
+    with open(dir + 'data.names', 'w') as f:
         [f.write('%s\n' % a) for a in names]
 
     # Split data into train, test, and validate files
-    split_rows_simple('out/data.txt')
-    write_data_data('out/data.data', nc=1)
-    print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
+    split_rows_simple(dir + 'data.txt')
+    write_data_data(dir + 'data.data', nc=1)
+    print('Done. Output saved to %s' % Path(dir).absolute())
 
 
 if __name__ == '__main__':
@@ -306,7 +313,7 @@ if __name__ == '__main__':
                           img_path='../../Downloads/athena_day/20190715/')  # images folder
 
     elif source is 'ath':  # ath format
-        convert_ath_json(dir='../../Downloads/athena/')  # images folder
+        convert_ath_json(json_dir='../../Downloads/athena/')  # images folder
 
     # zip results
-    os.system('zip -r out.zip out')
+    os.system('zip -r ../out.zip ../out')
