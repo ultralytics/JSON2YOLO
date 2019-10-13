@@ -1,3 +1,4 @@
+import glob
 import os
 import shutil
 from pathlib import Path
@@ -26,7 +27,7 @@ def exif_size(img):
     return s
 
 
-def split_rows_simple(file):  # split training data
+def split_rows_simple(file='data.txt'):  # from utils import *; split_rows_simple()
     # splits one textfile into 3 smaller ones based upon train, test, val ratios
     with open(file) as f:
         lines = f.readlines()
@@ -87,3 +88,11 @@ def write_data_data(fname='data.data', nc=80):
 
     with open(fname, 'a') as f:
         f.writelines(lines)
+
+
+def image_folder2file(folder='images/'):  # from utils import *; image_folder2file('../out/images/)
+    # write a txt file listing all imaged in folder
+    s = glob.glob(folder + '*.*')
+    with open(folder[:-1] + '.txt', 'w') as file:
+        for l in s:
+            file.write(l + '\n')  # write image list

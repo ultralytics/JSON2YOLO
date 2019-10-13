@@ -257,7 +257,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
                             continue  # next file
 
                         # write image
-                        img_size = 1024  # resize to maximum
+                        img_size = 4096  # resize to maximum
                         img = cv2.imread(f)  # BGR
                         assert img is not None, 'Image Not Found ' + f
                         r = img_size / max(img.shape)  # size ratio
@@ -316,4 +316,4 @@ if __name__ == '__main__':
         convert_ath_json(json_dir='../../Downloads/athena/')  # images folder
 
     # zip results
-    os.system('zip -r ../out.zip ../out')
+    os.system('zip -r ../out_4096.zip ../out')
