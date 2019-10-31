@@ -88,6 +88,7 @@ def convert_infolks_json(name, files, img_path):
 
     # Write *.names file
     names = sorted(np.unique(cat))
+    names.pop(names.index('Missing product'))  # remove
     with open(name + '.names', 'a') as file:
         [file.write('%s\n' % a) for a in names]
 
@@ -97,6 +98,9 @@ def convert_infolks_json(name, files, img_path):
 
         with open(path + '/labels/' + label_name, 'a') as file:
             for a in x['output']['objects']:
+                if a['classTitle'] == 'Missing product':
+                    continue  # skip
+
                 category_id = names.index(a['classTitle'])
 
                 # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
