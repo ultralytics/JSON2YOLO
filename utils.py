@@ -38,7 +38,7 @@ def split_rows_simple(file='data.txt'):  # from utils import *; split_rows_simpl
     for k, v in {'train': i, 'test': j, 'val': k}.items():  # key, value pairs
         if v.any():
             new_file = file.replace(s, '_' + k + s)
-            with open(new_file, 'a') as f:
+            with open(new_file, 'w') as f:
                 f.writelines([lines[i] for i in v])
 
 
@@ -96,3 +96,10 @@ def image_folder2file(folder='images/'):  # from utils import *; image_folder2fi
     with open(folder[:-1] + '.txt', 'w') as file:
         for l in s:
             file.write(l + '\n')  # write image list
+
+
+def add_background(path='../data/sm3/'):  # from utils import *; add_background('../data/sm3/')
+    # incorporate background images into dataset
+    image_folder2file(folder=path + 'images/')
+    os.system('mv %simages.txt %sout.txt' % (path, path))
+    split_rows_simple(file=path + 'out.txt')
