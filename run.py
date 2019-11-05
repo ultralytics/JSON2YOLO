@@ -112,7 +112,7 @@ def convert_infolks_json(name, files, img_path):
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
-    write_data_data(name + 'data.data', nc=len(names))
+    write_data_data(name + '.data', nc=len(names))
     print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
 
 
@@ -307,7 +307,7 @@ if __name__ == '__main__':
                               file='../supermarket2/export-coco.json')
 
     elif source is 'infolks':  # Infolks https://infolks.info/
-        convert_infolks_json(name='out',
+        convert_infolks_json(name='data',
                              files='../data/amit_usa2/JSON/*.json',
                              img_path='../data/amit_usa2/images/')
 
