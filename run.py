@@ -1,10 +1,9 @@
-import glob
 import json
 
 import cv2
 import pandas as pd
-from tqdm import tqdm
 from PIL import Image
+from tqdm import tqdm
 
 from utils import *
 
@@ -88,7 +87,7 @@ def convert_infolks_json(name, files, img_path):
 
     # Write *.names file
     names = sorted(np.unique(cat))
-    names.pop(names.index('Missing product'))  # remove
+    # names.pop(names.index('Missing product'))  # remove
     with open(name + '.names', 'a') as file:
         [file.write('%s\n' % a) for a in names]
 
@@ -98,8 +97,8 @@ def convert_infolks_json(name, files, img_path):
 
         with open(path + '/labels/' + label_name, 'a') as file:
             for a in x['output']['objects']:
-                if a['classTitle'] == 'Missing product':
-                    continue  # skip
+                # if a['classTitle'] == 'Missing product':
+                #    continue  # skip
 
                 category_id = names.index(a['classTitle'])
 
@@ -113,6 +112,7 @@ def convert_infolks_json(name, files, img_path):
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
+    write_data_data(name + 'data.data', nc=len(names))
     print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
 
 
@@ -300,16 +300,16 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
 
 
 if __name__ == '__main__':
-    source = 'ath'
+    source = 'infolks'
 
     if source is 'labelbox':  # Labelbox https://labelbox.com/
         convert_labelbox_json(name='supermarket2',
                               file='../supermarket2/export-coco.json')
 
     elif source is 'infolks':  # Infolks https://infolks.info/
-        convert_infolks_json(name='supermarket3',
-                             files='../supermarket3/jsons/*.json',
-                             img_path='../supermarket3/images/')
+        convert_infolks_json(name='out',
+                             files='../data/amit_usa2/JSON/*.json',
+                             img_path='../data/amit_usa2/images/')
 
     elif source is 'vott':  # VoTT https://github.com/microsoft/VoTT
         convert_vott_json(name='data',
@@ -320,4 +320,4 @@ if __name__ == '__main__':
         convert_ath_json(json_dir='../../Downloads/athena/')  # images folder
 
     # zip results
-    os.system('zip -r ../out_4096.zip ../out')
+    # os.system('zip -r ../out.zip ../out')

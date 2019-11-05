@@ -99,7 +99,12 @@ def image_folder2file(folder='images/'):  # from utils import *; image_folder2fi
 
 
 def add_background(path='../data/sm3/'):  # from utils import *; add_background('../data/sm3/')
-    # incorporate background images into dataset
+    # incorporate (newly added) background images into dataset
     image_folder2file(folder=path + 'images/')
     os.system('mv %simages.txt %sout.txt' % (path, path))
     split_rows_simple(file=path + 'out.txt')
+
+
+def create_single_class_dataset(path='../data/sm3'):  # from utils import *; create_single_class_dataset('../data/sm3/')
+    # creates a single-class version of an existing dataset
+    os.system('mkdir %s_1cls' % path)
