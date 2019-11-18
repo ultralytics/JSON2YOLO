@@ -126,17 +126,20 @@ def flatten_recursive_folders(path='../../Downloads/data/sm4/'):  # from utils i
         os.makedirs(p)  # make new output folder
 
     jsons, images, image_ext = [], [], []
+    n, m = 0, 0
     for dirpath, dirnames, filenames in tqdm(os.walk(jdir), desc='jsons paths'):
         for f in filenames:
             if f.lower().endswith('.json'):
+                n += 1
                 jsons.append(os.path.join(dirpath, f))
-                os.system("cp '%s' '%s'" % (os.path.join(dirpath, f), njdir))
+                os.system("cp '%s' '%s'" % (os.path.join(dirpath, f), os.path.join(njdir, '%g_%s' % (n, f))))
 
     for dirpath, dirnames, filenames in tqdm(os.walk(idir), desc='image paths'):
         for f in filenames:
             if os.path.splitext(f)[-1].lower() in img_formats:
+                m += 1
                 images.append(os.path.join(dirpath, f))
-                os.system("cp '%s' '%s'" % (os.path.join(dirpath, f), nidir))
+                os.system("cp '%s' '%s'" % (os.path.join(dirpath, f), os.path.join(nidir, '%g_%s' % (m, f))))
 
     # for dirpath, dirnames, filenames in os.walk(idir):
     #     for f in filenames:
