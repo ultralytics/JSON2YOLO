@@ -5,11 +5,15 @@ from pathlib import Path
 
 import numpy as np
 from PIL import ExifTags
+from tqdm import tqdm
 
 # Get orientation exif tag
 for orientation in ExifTags.TAGS.keys():
     if ExifTags.TAGS[orientation] == 'Orientation':
         break
+
+img_formats = ['.bmp', '.jpg', '.jpeg', '.png', '.tif', '.dng']
+vid_formats = ['.mov', '.avi', '.mp4']
 
 
 def exif_size(img):
@@ -108,3 +112,34 @@ def add_background(path='../data/sm3/'):  # from utils import *; add_background(
 def create_single_class_dataset(path='../data/sm3'):  # from utils import *; create_single_class_dataset('../data/sm3/')
     # creates a single-class version of an existing dataset
     os.system('mkdir %s_1cls' % path)
+
+
+def flatten_recursive_folders(path='../../Downloads/data/sm4/'):  # from utils import *; flatten_recursive_folders()
+    # flattens nested folders in path/images and path/JSON into single folders
+    idir, jdir = path + 'images/', path + 'JSON/'
+    nidir, njdir = path + 'images_flat/', path + 'JSON_flat/'
+
+    # Create output folders
+    for p in [nidir, njdir]:
+        if os.path.exists(p):
+            shutil.rmtree(p)  # delete output folder
+        os.makedirs(p)  # make new output folder
+
+    jsons, images, image_ext = [], [], []
+    for dirpath, dirnames, filenames in tqdm(os.walk(jdir), desc='jsons paths'):
+        for f in filenames:
+            if f.lower().endswith('.json'):
+                jsons.append(os.path.join(dirpath, f))
+                os.system("cp '%s' '%s'" % (os.path.join(dirpath, f), njdir))
+
+    for dirpath, dirnames, filenames in tqdm(os.walk(idir), desc='image paths'):
+        for f in filenames:
+            if os.path.splitext(f)[-1].lower() in img_formats:
+                images.append(os.path.join(dirpath, f))
+                os.system("cp '%s' '%s'" % (os.path.join(dirpath, f), nidir))
+
+    # for dirpath, dirnames, filenames in os.walk(idir):
+    #     for f in filenames:
+    #         image_ext.append(os.path.splitext(f)[-1].lower())
+    # image_ext = np.unique(image_ext)
+    print('Flattening complete: %g jsons and %g images' % (len(jsons), len(images)))

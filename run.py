@@ -307,9 +307,9 @@ if __name__ == '__main__':
                               file='../supermarket2/export-coco.json')
 
     elif source is 'infolks':  # Infolks https://infolks.info/
-        convert_infolks_json(name='data',
-                             files='../data/amit_usa2/JSON/*.json',
-                             img_path='../data/amit_usa2/images/')
+        convert_infolks_json(name='out',
+                             files='../data/sm4/JSON/*.json',
+                             img_path='../data/sm4/images/')
 
     elif source is 'vott':  # VoTT https://github.com/microsoft/VoTT
         convert_vott_json(name='data',
