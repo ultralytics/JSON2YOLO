@@ -94,7 +94,7 @@ def write_data_data(fname='data.data', nc=80):
         f.writelines(lines)
 
 
-def image_folder2file(folder='images/'):  # from utils import *; image_folder2file('../out/images/)
+def image_folder2file(folder='images/'):  # from utils import *; image_folder2file()
     # write a txt file listing all imaged in folder
     s = glob.glob(folder + '*.*')
     with open(folder[:-1] + '.txt', 'w') as file:
