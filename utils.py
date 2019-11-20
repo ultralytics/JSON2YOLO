@@ -3,18 +3,17 @@ import os
 import shutil
 from pathlib import Path
 
-import cv2
 import numpy as np
 from PIL import ExifTags
 from tqdm import tqdm
+
+img_formats = ['.bmp', '.jpg', '.jpeg', '.png', '.tif']
+vid_formats = ['.mov', '.avi', '.mp4']
 
 # Get orientation exif tag
 for orientation in ExifTags.TAGS.keys():
     if ExifTags.TAGS[orientation] == 'Orientation':
         break
-
-img_formats = ['.bmp', '.jpg', '.jpeg', '.png', '.tif']
-vid_formats = ['.mov', '.avi', '.mp4']
 
 
 def exif_size(img):
@@ -27,7 +26,7 @@ def exif_size(img):
         elif rotation == 8:  # rotation 90
             s = (s[1], s[0])
     except:
-        None
+        pass
 
     return s
 
@@ -142,6 +141,6 @@ def flatten_recursive_folders(path='../../Downloads/data/sm4/'):  # from utils i
 
                 os.system("cp '%s' '%s'" % (json, json_new))
                 os.system("cp '%s' '%s'" % (image, image_new))
-                #cv2.imwrite(str(image_new), cv2.imread(str(image)))
+                # cv2.imwrite(str(image_new), cv2.imread(str(image)))
 
     print('Flattening complete: %g jsons and images' % n)
