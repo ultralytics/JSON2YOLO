@@ -3,6 +3,7 @@ import os
 import shutil
 from pathlib import Path
 
+import cv2
 import numpy as np
 from PIL import ExifTags
 from tqdm import tqdm
@@ -133,13 +134,13 @@ def flatten_recursive_folders(path='../../Downloads/data/sm4/'):  # from utils i
             if suffix.lower() in img_formats:
                 n += 1
                 stem_new = '%g_' % n + stem
-                image_new = nidir / (stem_new + suffix)
+                image_new = nidir / (stem_new + '.jpg')  # converts all formats to *.jpg
                 json_new = njdir / (stem_new + '.json')
 
                 image = parent / f
                 json = Path(parent.replace('images', 'json')) / str(f).replace(suffix, '.json')
 
                 os.system("cp '%s' '%s'" % (json, json_new))
-                os.system("cp '%s' '%s'" % (image, image_new))
+                cv2.imwrite(str(image_new), cv2.imread(str(image)))
 
     print('Flattening complete: %g jsons and images' % n)

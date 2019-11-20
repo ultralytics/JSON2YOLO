@@ -319,4 +319,4 @@ if __name__ == '__main__':
         convert_ath_json(json_dir='../../Downloads/athena/')  # images folder
 
     # zip results
-    # os.system('zip -r ../out.zip ../out')
+    # os.system('zip -r ../data/sm4.zip ../data/sm4')
