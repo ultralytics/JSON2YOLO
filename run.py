@@ -78,7 +78,7 @@ def convert_infolks_json(name, files, img_path):
         f = glob.glob(img_path + Path(x['json_file']).stem + '.*')[0]
         file_name.append(f)
         wh.append(exif_size(Image.open(f)))  # (width, height)
-        cat.extend(a['classTitle'] for a in x['output']['objects'])  # categories
+        cat.extend(a['classTitle'].lower() for a in x['output']['objects'])  # categories
 
         # filename
         with open(name + '.txt', 'a') as file:
@@ -102,7 +102,7 @@ def convert_infolks_json(name, files, img_path):
                 category_id = names.index(a['classTitle'])
 
                 # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
-                box = np.array(a['points']['exterior']).ravel()
+                box = np.array(a['points']['exterior'], dtype=np.float32).ravel()
                 box[[0, 2]] /= wh[i][0]  # normalize x by width
                 box[[1, 3]] /= wh[i][1]  # normalize y by height
                 box = [box[[0, 2]].mean(), box[[1, 3]].mean(), box[2] - box[0], box[3] - box[1]]  # xywh
