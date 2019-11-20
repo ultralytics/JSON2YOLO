@@ -116,8 +116,9 @@ def create_single_class_dataset(path='../data/sm3'):  # from utils import *; cre
 
 def flatten_recursive_folders(path='../../Downloads/data/sm4/'):  # from utils import *; flatten_recursive_folders()
     # flattens nested folders in path/images and path/JSON into single folders
-    idir, jdir = path + 'images/', path + 'JSON/'
-    nidir, njdir = path + 'images_flat/', path + 'JSON_flat/'
+    idir, jdir = path + 'images/', path + 'json/'
+    nidir, njdir = Path(path + 'images_flat/'), Path(path + 'json_flat/')
+    n = 0
 
     # Create output folders
     for p in [nidir, njdir]:
@@ -125,24 +126,20 @@ def flatten_recursive_folders(path='../../Downloads/data/sm4/'):  # from utils i
             shutil.rmtree(p)  # delete output folder
         os.makedirs(p)  # make new output folder
 
-    jsons, images, image_ext = [], [], []
-    n, m = 0, 0
-    for dirpath, dirnames, filenames in tqdm(os.walk(jdir), desc='jsons paths'):
-        for f in filenames:
-            if f.lower().endswith('.json'):
+    for parent, dirs, files in os.walk(idir):
+        for f in tqdm(files, desc=parent):
+            f = Path(f)
+            stem, suffix = f.stem, f.suffix
+            if suffix.lower() in img_formats:
                 n += 1
-                jsons.append(os.path.join(dirpath, f))
-                os.system("cp '%s' '%s'" % (os.path.join(dirpath, f), os.path.join(njdir, '%g_%s' % (n, f))))
+                stem_new = '%g_' % n + stem
+                image_new = nidir / (stem_new + suffix)
+                json_new = njdir / (stem_new + '.json')
 
-    for dirpath, dirnames, filenames in tqdm(os.walk(idir), desc='image paths'):
-        for f in filenames:
-            if os.path.splitext(f)[-1].lower() in img_formats:
-                m += 1
-                images.append(os.path.join(dirpath, f))
-                os.system("cp '%s' '%s'" % (os.path.join(dirpath, f), os.path.join(nidir, '%g_%s' % (m, f))))
+                image = parent / f
+                json = Path(parent.replace('images', 'json')) / str(f).replace(suffix, '.json')
 
-    # for dirpath, dirnames, filenames in os.walk(idir):
-    #     for f in filenames:
-    #         image_ext.append(os.path.splitext(f)[-1].lower())
-    # image_ext = np.unique(image_ext)
-    print('Flattening complete: %g jsons and %g images' % (len(jsons), len(images)))
+                os.system("cp '%s' '%s'" % (json, json_new))
+                os.system("cp '%s' '%s'" % (image, image_new))
+
+    print('Flattening complete: %g jsons and images' % n)

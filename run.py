@@ -3,7 +3,6 @@ import json
 import cv2
 import pandas as pd
 from PIL import Image
-from tqdm import tqdm
 
 from utils import *
 
@@ -308,7 +307,7 @@ if __name__ == '__main__':
 
     elif source is 'infolks':  # Infolks https://infolks.info/
         convert_infolks_json(name='out',
-                             files='../data/sm4/JSON/*.json',
+                             files='../data/sm4/json/*.json',
                              img_path='../data/sm4/images/')
 
     elif source is 'vott':  # VoTT https://github.com/microsoft/VoTT
