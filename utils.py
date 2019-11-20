@@ -31,7 +31,7 @@ def exif_size(img):
     return s
 
 
-def split_rows_simple(file='data.txt'):  # from utils import *; split_rows_simple()
+def split_rows_simple(file='../data/sm4/out.txt'):  # from utils import *; split_rows_simple()
     # splits one textfile into 3 smaller ones based upon train, test, val ratios
     with open(file) as f:
         lines = f.readlines()
