@@ -99,7 +99,7 @@ def convert_infolks_json(name, files, img_path):
                 # if a['classTitle'] == 'Missing product':
                 #    continue  # skip
 
-                category_id = names.index(a['classTitle'])
+                category_id = names.index(a['classTitle'].lower())
 
                 # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
                 box = np.array(a['points']['exterior'], dtype=np.float32).ravel()
