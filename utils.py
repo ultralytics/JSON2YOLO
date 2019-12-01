@@ -102,11 +102,24 @@ def image_folder2file(folder='images/'):  # from utils import *; image_folder2fi
             file.write(l + '\n')  # write image list
 
 
-def add_background(path='../data/sm3/'):  # from utils import *; add_background('../data/sm3/')
-    # incorporate (newly added) background images into dataset
-    image_folder2file(folder=path + 'images/')
-    os.system('mv %simages.txt %sout.txt' % (path, path))
-    split_rows_simple(file=path + 'out.txt')
+def add_coco_background(path='../data/sm4/', n=1000):  # from utils import *; add_coco_background()
+    # add coco background to sm4 in outb.txt
+    p = path + 'background'
+    if os.path.exists(p):
+        shutil.rmtree(p)  # delete output folder
+    os.makedirs(p)  # make new output folder
+
+    # copy images
+    for image in glob.glob('../coco/images/train2014/*.*')[:n]:
+        os.system('cp %s %s' % (image, p))
+
+    # add to outb.txt and make train, test.txt files
+    f = path + 'out.txt'
+    fb = path + 'outb.txt'
+    os.system('cp %s %s' % (f, fb))
+    with open(fb, 'a') as file:
+        file.writelines(i + '\n' for i in glob.glob(p + '/*.*'))
+    split_rows_simple(file=fb)
 
 
 def create_single_class_dataset(path='../data/sm3'):  # from utils import *; create_single_class_dataset('../data/sm3/')
