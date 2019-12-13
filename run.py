@@ -300,7 +300,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
 
 def convert_coco_json(json_dir='../coco/annotations/'):
     dir = make_folders(path='out/')  # output directory
-    jsons = glob.glob(json_dir + '*val2014.json')
+    jsons = glob.glob(json_dir + '*.json')
     coco80 = coco91_to_coco80_class()
 
     # Import json
@@ -309,7 +309,7 @@ def convert_coco_json(json_dir='../coco/annotations/'):
             data = json.load(f)
 
         # Create image dict
-        images = {'%g' % x['id']:x for x in data['images']}
+        images = {'%g' % x['id']: x for x in data['images']}
 
         # Write labels file
         for x in tqdm(data['annotations'], desc='Annotations %s' % json_file):
