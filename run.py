@@ -305,6 +305,8 @@ def convert_coco_json(json_dir='../coco/annotations/'):
 
     # Import json
     for json_file in sorted(jsons):
+        fn = 'out/labels/%s/' % Path(json_file).stem.replace('instances_', '')  # folder name
+        os.mkdir(fn)
         with open(json_file) as f:
             data = json.load(f)
 
@@ -325,11 +327,8 @@ def convert_coco_json(json_dir='../coco/annotations/'):
             box[[0, 2]] /= w  # normalize x
             box[[1, 3]] /= h  # normalize y
 
-            # if f == 'COCO_val2014_000000353148.jpg':
-            #   print(x)
-
             if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
-                with open('out/labels/' + Path(f).stem + '.txt', 'a') as file:
+                with open(fn + Path(f).stem + '.txt', 'a') as file:
                     file.write('%g %.6f %.6f %.6f %.6f\n' % (coco80[x['category_id'] - 1], *box))
 
 
