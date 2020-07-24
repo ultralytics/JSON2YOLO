@@ -3,6 +3,7 @@ import json
 import cv2
 import pandas as pd
 from PIL import Image
+import argparse
 
 from utils import *
 
@@ -301,6 +302,10 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
 def convert_coco_json(json_dir='../coco/annotations/'):
     dir = make_folders(path='out/')  # output directory
     jsons = glob.glob(json_dir + '*.json')
+    if len(jsons) == 0:
+        print(f"Warning: did not find any json files in {json_dir}")
+        exit(1)
+
     coco80 = coco91_to_coco80_class()
 
     # Import json
@@ -333,7 +338,10 @@ def convert_coco_json(json_dir='../coco/annotations/'):
 
 
 if __name__ == '__main__':
-    source = 'coco'
+    parser = argparse.ArgumentParser(description='Convert dataset to darknet format')
+    parser.add_argument('--source', metavar='N', type=str, default='coco', help='format of source dataset')
+    args = parser.parse_args()
+    source = args.source
 
     if source is 'labelbox':  # Labelbox https://labelbox.com/
         convert_labelbox_json(name='supermarket2',
