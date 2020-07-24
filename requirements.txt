@@ -1,3 +1,6 @@
 # pip3 install -U -r requirements.txt
 numpy
 tqdm
+pandas
+pillow
+opencv-python
