@@ -2,3 +2,5 @@
 numpy
 tqdm
 pandas
+pillow
+opencv-python
