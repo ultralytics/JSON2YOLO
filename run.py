@@ -6,6 +6,9 @@ from PIL import Image
 
 from utils import *
 
+import requests
+import time
+
 
 # Convert Labelbox JSON file into YOLO-format labels ---------------------------
 def convert_labelbox_json(name, file):
@@ -19,44 +22,113 @@ def convert_labelbox_json(name, file):
     # Write images and shapes
     name = 'out' + os.sep + name
     file_id, file_name, width, height = [], [], [], []
-    for i, x in enumerate(tqdm(data['images'], desc='Files and Shapes')):
-        file_id.append(x['id'])
-        file_name.append('IMG_' + x['file_name'].split('IMG_')[-1])
-        width.append(x['width'])
-        height.append(x['height'])
+
+    for i, x in enumerate(tqdm(data, desc='Files')):
+        
+        # Store file id
+        file_id.append(x['ID'])
+
+        # Download image
+        response = ''
+        url = x['Labeled Data']
+
+        while response == '':
+            try:
+                response = requests.get(url)
+                break
+            except:
+                print("Connection refused by the server..")
+                print("Let me sleep for 5 seconds")
+                print("ZZzzzz...")
+                time.sleep(5)
+                print("Was a nice sleep, now let me continue...")
+                continue
+        
+        # Write image in out/image folder
+        file_name.append(x['External ID'])
+        image_file = open('out/images/' + file_name[i], 'wb')
+        image_file.write(response.content)
+        image_file.close()
+
+        # Store width and height of image
+        width_img, height_img = (Image.open('out/images/' + file_name[i])).size
+        width.append(width_img)
+        height.append(height_img)
 
         # filename
         with open(name + '.txt', 'a') as file:
             file.write('%s\n' % file_name[i])
 
-        # shapes
-        with open(name + '.shapes', 'a') as file:
-            file.write('%g, %g\n' % (x['width'], x['height']))
+        # # shapes
+        # with open(name + '.shapes', 'a') as file:
+        #     file.write('%g, %g\n' % (x['width'], x['height']))
 
-    # Write *.names file
-    for x in tqdm(data['categories'], desc='Names'):
-        with open(name + '.names', 'a') as file:
-            file.write('%s\n' % x['name'])
+    # # Write *.names file
+    # for x in tqdm(data['categories'], desc='Names'):
+    #     with open(name + '.names', 'a') as file:
+    #         file.write('%s\n' % x['name'])
+    # Write labels file
+    object_names = []
+    for x in tqdm(data, desc='Names'):
+        labels = x['Label']
+
+        # Check whether there are any objects in the image
+        if 'objects' in labels:
+            objects = labels['objects']
+
+            for j, y in enumerate(objects):
+                # If the object name is unique, store in object_names
+                if y['value'] not in object_names:
+                    object_names.append(y['value'])
+
+    # Sort alphabetically
+    object_names.sort()
+    
+    # Store names in txt file
+    with open(name + '.names', 'a') as file:
+        for x in object_names:
+            file.write(x + '\n')
+    
 
     # Write labels file
-    for x in tqdm(data['annotations'], desc='Annotations'):
-        i = file_id.index(x['image_id'])  # image index
+    for x in tqdm(data, desc='Annotations'):
+        i = file_id.index(x['ID'])  # image index
         label_name = Path(file_name[i]).stem + '.txt'
 
-        # The Labelbox bounding box format is [top left x, top left y, width, height]
-        box = np.array(x['bbox'], dtype=np.float64)
-        box[:2] += box[2:] / 2  # xy top-left corner to center
-        box[[0, 2]] /= width[i]  # normalize x
-        box[[1, 3]] /= height[i]  # normalize y
+        labels = x['Label']
+        objects = labels['objects']
 
-        if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
-            with open('out/labels/' + label_name, 'a') as file:
-                file.write('%g %.6f %.6f %.6f %.6f\n' % (x['category_id'] - 1, *box))
+
+        for j, y in enumerate(objects):
+
+            # Extract object name
+            object_name = y['value']
+            object_name_index = object_names.index(object_name)  # image index
+            print(object_name_index)
+
+            # Extract bounding box values + scale them with the width and height of image
+            bbox = y['bbox']
+            left = bbox['left']/width[i]
+            top = bbox['top']/height[i]
+            width_box = bbox['width']/width[i]
+            height_box = bbox['height']/height[i]
+
+            # Convert into YOLO format
+            # The Labelbox bounding box format is [top left x, top left y, width, height]
+            # The YOLO format is <object-class> <x_center> <y_center> <width> <height>
+            x_center = left + width_box/2
+            y_center = top + height_box/2
+
+            info_string = str(object_name_index) + ' ' + str(x_center) + ' ' + str(y_center) + ' ' + str(width_box) + ' ' + str(height_box) + '\n'
+            print(info_string)
+
+            if (width_box > 0.) and (height_box > 0.):  # if w > 0 and h > 0
+                with open('out/labels/' + label_name, 'a') as file:
+                    file.write(info_string)
 
     # Split data into train, test, and validate files
-    split_files(name, file_name)
+    # split_files(name, file_name)
     print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
-
 
 # Convert INFOLKS JSON file into YOLO-format labels ----------------------------
 def convert_infolks_json(name, files, img_path):
@@ -333,11 +405,11 @@ def convert_coco_json(json_dir='../coco/annotations/'):
 
 
 if __name__ == '__main__':
-    source = 'coco'
+    source = 'labelbox'
 
     if source is 'labelbox':  # Labelbox https://labelbox.com/
-        convert_labelbox_json(name='supermarket2',
-                              file='../supermarket2/export-coco.json')
+        convert_labelbox_json(name='canals',
+                              file='export-2020-09-22T13 19 20.867Z.json')
 
     elif source is 'infolks':  # Infolks https://infolks.info/
         convert_infolks_json(name='out',
@@ -354,6 +426,3 @@ if __name__ == '__main__':
 
     elif source is 'coco':
         convert_coco_json()
-
-    # zip results
-    # os.system('zip -r ../coco.zip ../coco')
