@@ -13,6 +13,11 @@ Python 3.7 or later with the following `pip3 install -U -r requirements.txt` pac
 - `numpy`
 - `tqdm`
 
+# How to run
+At the bottom of the run file, change the source into the JSON source you are using. Paste the JSON file name as the file name. Then just run the script:
+
+``` python3 run.py ```
+
 # Citation
 
 [![DOI](https://zenodo.org/badge/186122711.svg)](https://zenodo.org/badge/latestdoi/186122711)
