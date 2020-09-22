@@ -19,6 +19,9 @@ def convert_labelbox_json(name, file):
     with open(file) as f:
         data = json.load(f)
 
+    # TODO: remove this!
+    data = data[0:20]
+
     # Write images and shapes
     name = 'out' + os.sep + name
     file_id, file_name, width, height = [], [], [], []
@@ -55,19 +58,11 @@ def convert_labelbox_json(name, file):
         width.append(width_img)
         height.append(height_img)
 
-        # filename
+        # Make text file with all file names, you can use this as train.txt or valid.txt eventually
         with open(name + '.txt', 'a') as file:
             file.write('%s\n' % file_name[i])
 
-        # # shapes
-        # with open(name + '.shapes', 'a') as file:
-        #     file.write('%g, %g\n' % (x['width'], x['height']))
-
-    # # Write *.names file
-    # for x in tqdm(data['categories'], desc='Names'):
-    #     with open(name + '.names', 'a') as file:
-    #         file.write('%s\n' % x['name'])
-    # Write labels file
+    # Gather all object names
     object_names = []
     for x in tqdm(data, desc='Names'):
         labels = x['Label']
@@ -84,7 +79,7 @@ def convert_labelbox_json(name, file):
     # Sort alphabetically
     object_names.sort()
     
-    # Store names in txt file
+    # Store names in .names file
     with open(name + '.names', 'a') as file:
         for x in object_names:
             file.write(x + '\n')
@@ -104,7 +99,6 @@ def convert_labelbox_json(name, file):
             # Extract object name
             object_name = y['value']
             object_name_index = object_names.index(object_name)  # image index
-            print(object_name_index)
 
             # Extract bounding box values + scale them with the width and height of image
             bbox = y['bbox']
@@ -120,7 +114,6 @@ def convert_labelbox_json(name, file):
             y_center = top + height_box/2
 
             info_string = str(object_name_index) + ' ' + str(x_center) + ' ' + str(y_center) + ' ' + str(width_box) + ' ' + str(height_box) + '\n'
-            print(info_string)
 
             if (width_box > 0.) and (height_box > 0.):  # if w > 0 and h > 0
                 with open('out/labels/' + label_name, 'a') as file:
