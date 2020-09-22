@@ -19,9 +19,6 @@ def convert_labelbox_json(name, file):
     with open(file) as f:
         data = json.load(f)
 
-    # TODO: remove this!
-    data = data[0:20]
-
     # Write images and shapes
     name = 'out' + os.sep + name
     file_id, file_name, width, height = [], [], [], []
