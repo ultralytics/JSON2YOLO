@@ -19,6 +19,9 @@ def convert_labelbox_json(name, file):
     with open(file) as f:
         data = json.load(f)
 
+    # Do not use all data if you are debugging
+    data = data[0:30]
+
     # Write images and shapes
     name = 'out' + os.sep + name
     file_id, file_name, width, height = [], [], [], []
@@ -80,7 +83,11 @@ def convert_labelbox_json(name, file):
     with open(name + '.names', 'a') as file:
         for x in object_names:
             file.write(x + '\n')
-    
+
+    # Intitialize
+    smallest_width = 0
+    smallest_height = 0
+    smallest_area = 0
 
     # Write labels file
     for x in tqdm(data, desc='Annotations'):
@@ -115,6 +122,19 @@ def convert_labelbox_json(name, file):
             if (width_box > 0.) and (height_box > 0.):  # if w > 0 and h > 0
                 with open('out/labels/' + label_name, 'a') as file:
                     file.write(info_string)
+
+            if (width_box*width[i]>smallest_width):
+                smallest_width = width_box*width[i]
+            
+            if (height_box*height[i]>smallest_height):
+                smallest_height = height_box*height[i]
+            
+            if (width_box*width[i]*height_box*height[i]>smallest_area):
+                smallest_area = width_box*width[i]*height_box*height[i]
+
+    print('Smallest area' + str(smallest_area) + '\n')
+    print('Smallest height' + str(smallest_height) + '\n')
+    print('Smallest width' + str(smallest_width) + '\n')
 
     # Split data into train, test, and validate files
     # split_files(name, file_name)
