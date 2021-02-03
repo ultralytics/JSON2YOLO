@@ -1,7 +1,7 @@
 # pip install -r requirements.txt
 
-cv2
 numpy
+opencv-python>=4.1.2
 pandas
-PIL
+Pillow
 tqdm
