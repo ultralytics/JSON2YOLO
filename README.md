@@ -8,10 +8,10 @@ The https://github.com/ultralytics/COCO2YOLO repo contains code to convert JSON 
 
 # Requirements
 
-Python 3.7 or later with the following `pip3 install -U -r requirements.txt` packages:
-
-- `numpy`
-- `tqdm`
+Python 3.8 or later with all [requirements.txt](https://github.com/ultralytics/JSON2YOLO/blob/master/requirements.txt) dependencies installed. To install run:
+```bash
+$ pip install -r requirements.txt
+```
 
 # Citation
 
