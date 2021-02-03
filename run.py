@@ -333,26 +333,26 @@ def convert_coco_json(json_dir='../coco/annotations/'):
 
 
 if __name__ == '__main__':
-    source = 'coco'
+    source = 'labelbox'
 
-    if source is 'labelbox':  # Labelbox https://labelbox.com/
-        convert_labelbox_json(name='supermarket2',
-                              file='../supermarket2/export-coco.json')
+    if source == 'labelbox':  # Labelbox https://labelbox.com/
+        convert_labelbox_json(name='dogs_and_cats',
+                              file='./export-2021-02-03T02_11_34.601Z.json')
 
-    elif source is 'infolks':  # Infolks https://infolks.info/
+    elif source == 'infolks':  # Infolks https://infolks.info/
         convert_infolks_json(name='out',
                              files='../data/sm4/json/*.json',
                              img_path='../data/sm4/images/')
 
-    elif source is 'vott':  # VoTT https://github.com/microsoft/VoTT
+    elif source == 'vott':  # VoTT https://github.com/microsoft/VoTT
         convert_vott_json(name='data',
                           files='../../Downloads/athena_day/20190715/*.json',
                           img_path='../../Downloads/athena_day/20190715/')  # images folder
 
-    elif source is 'ath':  # ath format
+    elif source == 'ath':  # ath format
         convert_ath_json(json_dir='../../Downloads/athena/')  # images folder
 
-    elif source is 'coco':
+    elif source == 'coco':
         convert_coco_json()
 
     # zip results
