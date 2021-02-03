@@ -7,8 +7,9 @@ import numpy as np
 from PIL import ExifTags
 from tqdm import tqdm
 
-img_formats = ['.bmp', '.jpg', '.jpeg', '.png', '.tif']
-vid_formats = ['.mov', '.avi', '.mp4']
+# Parameters
+img_formats = ['bmp', 'jpg', 'jpeg', 'png', 'tif', 'tiff', 'dng']  # acceptable image suffixes
+vid_formats = ['mov', 'avi', 'mp4', 'mpg', 'mpeg', 'm4v', 'wmv', 'mkv']  # acceptable video suffixes
 
 # Get orientation exif tag
 for orientation in ExifTags.TAGS.keys():
@@ -143,7 +144,7 @@ def flatten_recursive_folders(path='../../Downloads/data/sm4/'):  # from utils i
         for f in tqdm(files, desc=parent):
             f = Path(f)
             stem, suffix = f.stem, f.suffix
-            if suffix.lower() in img_formats:
+            if suffix.lower()[1:] in img_formats:
                 n += 1
                 stem_new = '%g_' % n + stem
                 image_new = nidir / (stem_new + suffix)  # converts all formats to *.jpg
