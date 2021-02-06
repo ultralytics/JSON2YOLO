@@ -10,7 +10,7 @@ from utils import *
 # Convert Labelbox JSON file into YOLO-format labels ---------------------------
 def convert_labelbox_json(name, file):
     # Create folders
-    path = make_folders()
+    path = make_dirs()
 
     # Import json
     with open(file) as f:
@@ -61,7 +61,7 @@ def convert_labelbox_json(name, file):
 # Convert INFOLKS JSON file into YOLO-format labels ----------------------------
 def convert_infolks_json(name, files, img_path):
     # Create folders
-    path = make_folders()
+    path = make_dirs()
 
     # Import json
     data = []
@@ -118,7 +118,7 @@ def convert_infolks_json(name, files, img_path):
 # Convert vott JSON file into YOLO-format labels -------------------------------
 def convert_vott_json(name, files, img_path):
     # Create folders
-    path = make_folders()
+    path = make_dirs()
     name = path + os.sep + name
 
     # Import json
@@ -191,7 +191,7 @@ def convert_vott_json(name, files, img_path):
 # Convert ath JSON file into YOLO-format labels --------------------------------
 def convert_ath_json(json_dir):  # dir contains json annotations and images
     # Create folders
-    dir = make_folders()  # output directory
+    dir = make_dirs()  # output directory
 
     jsons = []
     for dirpath, dirnames, filenames in os.walk(json_dir):
@@ -298,15 +298,15 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
     print('Done. Output saved to %s' % Path(dir).absolute())
 
 
-def convert_coco_json(json_dir='../coco/annotations/'):
-    dir = make_folders(path='out/')  # output directory
+def convert_coco_json(json_dir='../../Downloads/annotations/'):
+    save_dir = make_dirs()  # output directory
     jsons = glob.glob(json_dir + '*.json')
     coco80 = coco91_to_coco80_class()
 
     # Import json
     for json_file in sorted(jsons):
-        fn = 'out/labels/%s/' % Path(json_file).stem.replace('instances_', '')  # folder name
-        os.mkdir(fn)
+        fn = Path(save_dir) / 'labels' / Path(json_file).stem.replace('instances_', '')  # folder name
+        fn.mkdir()
         with open(json_file) as f:
             data = json.load(f)
 
@@ -321,19 +321,24 @@ def convert_coco_json(json_dir='../coco/annotations/'):
             img = images['%g' % x['image_id']]
             h, w, f = img['height'], img['width'], img['file_name']
 
-            # The Labelbox bounding box format is [top left x, top left y, width, height]
+            # The COCO box format is [top left x, top left y, width, height]
             box = np.array(x['bbox'], dtype=np.float64)
             box[:2] += box[2:] / 2  # xy top-left corner to center
             box[[0, 2]] /= w  # normalize x
             box[[1, 3]] /= h  # normalize y
 
-            if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
-                with open(fn + Path(f).stem + '.txt', 'a') as file:
-                    file.write('%g %.6f %.6f %.6f %.6f\n' % (coco80[x['category_id'] - 1], *box))
+            # Segments
+            # s = (np.array(x['segmentation'][0]).reshape(-1, 2) / np.array([w, h])).reshape(-1).tolist()
+
+            # Write
+            if box[2] > 0 and box[3] > 0:  # if w > 0 and h > 0
+                line = coco80[x['category_id'] - 1], *box  # , *s
+                with open((fn / f).with_suffix('.txt'), 'a') as file:
+                    file.write(('%g ' * len(line)).rstrip() % line + '\n')
 
 
 if __name__ == '__main__':
-    source = 'labelbox'
+    source = 'coco'
 
     if source == 'labelbox':  # Labelbox https://labelbox.com/
         convert_labelbox_json(name='dogs_and_cats',

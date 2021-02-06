@@ -71,15 +71,15 @@ def split_indices(x, train=0.9, test=0.1, validate=0.0, shuffle=True):  # split 
     return v[:i], v[i:j], v[j:k]  # return indices
 
 
-def make_folders(path='../out/'):
+def make_dirs(dir='new_dir/'):
     # Create folders
+    dir = Path(dir)
+    if dir.exists():
+        shutil.rmtree(dir)  # delete dir
+    for p in dir, dir / 'labels', dir / 'images':
+        p.mkdir(parents=True, exist_ok=True)  # make dir
+    return dir
 
-    if os.path.exists(path):
-        shutil.rmtree(path)  # delete output folder
-    os.makedirs(path)  # make new output folder
-    os.makedirs(path + os.sep + 'labels')  # make new labels folder
-    os.makedirs(path + os.sep + 'images')  # make new labels folder
-    return path
 
 
 def write_data_data(fname='data.data', nc=80):
