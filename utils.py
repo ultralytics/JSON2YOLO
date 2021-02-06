@@ -81,7 +81,6 @@ def make_dirs(dir='new_dir/'):
     return dir
 
 
-
 def write_data_data(fname='data.data', nc=80):
     # write darknet *.data file
     lines = ['classes = %g\n' % nc,
