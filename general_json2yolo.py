@@ -7,57 +7,6 @@ from PIL import Image
 from utils import *
 
 
-# Convert Labelbox JSON file into YOLO-format labels ---------------------------
-def convert_labelbox_json(name, file):
-    # Create folders
-    path = make_dirs()
-
-    # Import json
-    with open(file) as f:
-        data = json.load(f)
-
-    # Write images and shapes
-    name = 'out' + os.sep + name
-    file_id, file_name, width, height = [], [], [], []
-    for i, x in enumerate(tqdm(data['images'], desc='Files and Shapes')):
-        file_id.append(x['id'])
-        file_name.append('IMG_' + x['file_name'].split('IMG_')[-1])
-        width.append(x['width'])
-        height.append(x['height'])
-
-        # filename
-        with open(name + '.txt', 'a') as file:
-            file.write('%s\n' % file_name[i])
-
-        # shapes
-        with open(name + '.shapes', 'a') as file:
-            file.write('%g, %g\n' % (x['width'], x['height']))
-
-    # Write *.names file
-    for x in tqdm(data['categories'], desc='Names'):
-        with open(name + '.names', 'a') as file:
-            file.write('%s\n' % x['name'])
-
-    # Write labels file
-    for x in tqdm(data['annotations'], desc='Annotations'):
-        i = file_id.index(x['image_id'])  # image index
-        label_name = Path(file_name[i]).stem + '.txt'
-
-        # The Labelbox bounding box format is [top left x, top left y, width, height]
-        box = np.array(x['bbox'], dtype=np.float64)
-        box[:2] += box[2:] / 2  # xy top-left corner to center
-        box[[0, 2]] /= width[i]  # normalize x
-        box[[1, 3]] /= height[i]  # normalize y
-
-        if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
-            with open('out/labels/' + label_name, 'a') as file:
-                file.write('%g %.6f %.6f %.6f %.6f\n' % (x['category_id'] - 1, *box))
-
-    # Split data into train, test, and validate files
-    split_files(name, file_name)
-    print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
-
-
 # Convert INFOLKS JSON file into YOLO-format labels ----------------------------
 def convert_infolks_json(name, files, img_path):
     # Create folders
@@ -298,7 +247,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
     print('Done. Output saved to %s' % Path(dir).absolute())
 
 
-def convert_coco_json(json_dir='../../Downloads/annotations/'):
+def convert_coco_json(json_dir='../coco/annotations/'):
     save_dir = make_dirs()  # output directory
     jsons = glob.glob(json_dir + '*.json')
     coco80 = coco91_to_coco80_class()
@@ -340,9 +289,8 @@ def convert_coco_json(json_dir='../../Downloads/annotations/'):
 if __name__ == '__main__':
     source = 'coco'
 
-    if source == 'labelbox':  # Labelbox https://labelbox.com/
-        convert_labelbox_json(name='dogs_and_cats',
-                              file='labelbox-export-2021-02-03T02_11_34.601Z.json')
+    if source == 'coco':
+        convert_coco_json('../../Downloads/coco/annotations/')
 
     elif source == 'infolks':  # Infolks https://infolks.info/
         convert_infolks_json(name='out',
@@ -356,9 +304,6 @@ if __name__ == '__main__':
 
     elif source == 'ath':  # ath format
         convert_ath_json(json_dir='../../Downloads/athena/')  # images folder
-
-    elif source == 'coco':
-        convert_coco_json()
 
     # zip results
     # os.system('zip -r ../coco.zip ../coco')
