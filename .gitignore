@@ -16,6 +16,7 @@
 *.json
 
 out/*
+new_dir/*
 
 pycocotools/*
 results*.txt
