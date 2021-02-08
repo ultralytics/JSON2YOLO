@@ -251,6 +251,7 @@ def convert_coco_json(json_dir='../coco/annotations/'):
     save_dir = make_dirs()  # output directory
     jsons = glob.glob(json_dir + '*.json')
     coco80 = coco91_to_coco80_class()
+    segments = False  # save segments instead of boxes
 
     # Import json
     for json_file in sorted(jsons):
@@ -277,11 +278,11 @@ def convert_coco_json(json_dir='../coco/annotations/'):
             box[[1, 3]] /= h  # normalize y
 
             # Segments
-            # s = (np.array(x['segmentation'][0]).reshape(-1, 2) / np.array([w, h])).reshape(-1).tolist()
+            s = (np.array(x['segmentation'][0]).reshape(-1, 2) / np.array([w, h])).reshape(-1).tolist()
 
             # Write
             if box[2] > 0 and box[3] > 0:  # if w > 0 and h > 0
-                line = coco80[x['category_id'] - 1], *box  # , *s
+                line = coco80[x['category_id'] - 1], *(s if segments else box)
                 with open((fn / f).with_suffix('.txt'), 'a') as file:
                     file.write(('%g ' * len(line)).rstrip() % line + '\n')
 
