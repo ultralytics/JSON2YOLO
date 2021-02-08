@@ -342,7 +342,7 @@ if __name__ == '__main__':
 
     if source == 'labelbox':  # Labelbox https://labelbox.com/
         convert_labelbox_json(name='dogs_and_cats',
-                              file='./export-2021-02-03T02_11_34.601Z.json')
+                              file='labelbox-export-2021-02-03T02_11_34.601Z.json')
 
     elif source == 'infolks':  # Infolks https://infolks.info/
         convert_infolks_json(name='out',

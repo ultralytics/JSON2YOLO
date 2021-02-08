@@ -1,20 +1,11 @@
 import json
-import shutil
 from pathlib import Path
 
 import requests
 import yaml
 from PIL import Image
 
-
-def make_dirs(dir='new_dir/'):
-    # Create folders
-    dir = Path(dir)
-    if dir.exists():
-        shutil.rmtree(dir)  # delete dir
-    for p in dir, dir / 'labels', dir / 'images':
-        p.mkdir(parents=True, exist_ok=True)  # make dir
-    return dir
+from utils import make_dirs
 
 
 def convert(file):
@@ -56,4 +47,4 @@ def convert(file):
 
 
 if __name__ == '__main__':
-    convert('./export-2021-02-03T02_11_34.601Z.json')
+    convert('labelbox-export-2021-02-03T02_11_34.601Z.json')
