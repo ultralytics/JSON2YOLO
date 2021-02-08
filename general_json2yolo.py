@@ -247,11 +247,10 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
     print('Done. Output saved to %s' % Path(dir).absolute())
 
 
-def convert_coco_json(json_dir='../coco/annotations/'):
+def convert_coco_json(json_dir='../coco/annotations/', use_segments=False):
     save_dir = make_dirs()  # output directory
     jsons = glob.glob(json_dir + '*.json')
     coco80 = coco91_to_coco80_class()
-    segments = False  # save segments instead of boxes
 
     # Import json
     for json_file in sorted(jsons):
@@ -282,7 +281,7 @@ def convert_coco_json(json_dir='../coco/annotations/'):
 
             # Write
             if box[2] > 0 and box[3] > 0:  # if w > 0 and h > 0
-                line = coco80[x['category_id'] - 1], *(s if segments else box)
+                line = coco80[x['category_id'] - 1], *(s if use_segments else box)  # cls, box or segments
                 with open((fn / f).with_suffix('.txt'), 'a') as file:
                     file.write(('%g ' * len(line)).rstrip() % line + '\n')
 
