@@ -277,7 +277,8 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False):
             box[[1, 3]] /= h  # normalize y
 
             # Segments
-            s = (np.array(x['segmentation'][0]).reshape(-1, 2) / np.array([w, h])).reshape(-1).tolist()
+            segments = [j for i in x['segmentation'] for j in i]  # all segments concatenated
+            s = (np.array(segments).reshape(-1, 2) / np.array([w, h])).reshape(-1).tolist()
 
             # Write
             if box[2] > 0 and box[3] > 0:  # if w > 0 and h > 0
