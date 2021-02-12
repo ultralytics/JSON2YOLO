@@ -19,8 +19,8 @@ def convert(file):
         img_path = img['Labeled Data']
         im = Image.open(requests.get(img_path, stream=True).raw if img_path.startswith('http') else img_path)  # open
         width, height = im.size  # image size
-        label_path = save_dir / 'labels' / Path(img_path[:img_path.index('?')]).with_suffix('.txt').name
-        image_path = save_dir / 'images' / Path(img_path[:img_path.index('?')]).name
+        label_path = save_dir / 'labels' / Path(img['External ID']).with_suffix('.txt').name
+        image_path = save_dir / 'images' / img['External ID']
         im.save(image_path, quality=95, subsampling=0)
 
         for label in img['Label']['objects']:
