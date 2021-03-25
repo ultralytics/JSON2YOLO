@@ -15,6 +15,12 @@ Python 3.8 or later with all [requirements.txt](https://github.com/ultralytics/J
 $ pip install -r requirements.txt
 ```
 
+# How to use
+
+```bash
+$ python general_json2yolo.py -source coco -json_dir annotations/
+```
+
 # Citation
 
 [![DOI](https://zenodo.org/badge/186122711.svg)](https://zenodo.org/badge/latestdoi/186122711)
