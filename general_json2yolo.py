@@ -5,6 +5,7 @@ import pandas as pd
 from PIL import Image
 
 from utils import *
+import argparse
 
 
 # Convert INFOLKS JSON file into YOLO-format labels ----------------------------
@@ -282,17 +283,23 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False):
 
             # Write
             if box[2] > 0 and box[3] > 0:  # if w > 0 and h > 0
-                line = coco80[x['category_id'] - 1], *(s if use_segments else box)  # cls, box or segments
+                line = x['category_id'] - 1, *(s if use_segments else box)  # cls, box or segments
                 with open((fn / f).with_suffix('.txt'), 'a') as file:
                     file.write(('%g ' * len(line)).rstrip() % line + '\n')
 
 
 if __name__ == '__main__':
-    source = 'coco'
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-json_dir', action='store', help='please include the full path of the folder with bounding boxes (.json)', type=str)
+    parser.add_argument('-source', action='store', help='define the format to convert to yolo (coco,infolks,vott,ath)', type=str,default="coco")
+    args = parser.parse_args()
+    json_dir=args.json_dir
+    source=args.source
 
     if source == 'coco':
-        convert_coco_json('../../Downloads/coco/annotations/')
-
+        convert_coco_json(json_dir)
+    
     elif source == 'infolks':  # Infolks https://infolks.info/
         convert_infolks_json(name='out',
                              files='../data/sm4/json/*.json',

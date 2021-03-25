@@ -7,3 +7,4 @@ Pillow
 pyYAML
 requests
 tqdm
+argparse
