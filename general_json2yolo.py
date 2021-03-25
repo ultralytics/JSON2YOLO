@@ -283,7 +283,7 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False):
 
             # Write
             if box[2] > 0 and box[3] > 0:  # if w > 0 and h > 0
-                line = coco80[x['category_id'] - 1], *(s if use_segments else box)  # cls, box or segments
+                line = x['category_id'] - 1, *(s if use_segments else box)  # cls, box or segments
                 with open((fn / f).with_suffix('.txt'), 'a') as file:
                     file.write(('%g ' * len(line)).rstrip() % line + '\n')
 
