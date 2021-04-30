@@ -252,8 +252,8 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, cls91
     coco80 = coco91_to_coco80_class()
 
     # Import json
-    for json_file in sorted(glob.glob(json_dir + '*.json')):
-        fn = Path(save_dir) / 'labels' / Path(json_file).stem.replace('instances_', '')  # folder name
+    for json_file in sorted(Path(json_dir).resolve().glob('*.json')):
+        fn = Path(save_dir) / 'labels' / json_file.stem.replace('instances_', '')  # folder name
         fn.mkdir()
         with open(json_file) as f:
             data = json.load(f)
@@ -262,7 +262,7 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, cls91
         images = {'%g' % x['id']: x for x in data['images']}
 
         # Write labels file
-        for x in tqdm(data['annotations'], desc='Annotations %s' % json_file):
+        for x in tqdm(data['annotations'], desc=f'Annotations {json_file}'):
             if x['iscrowd']:
                 continue
 
