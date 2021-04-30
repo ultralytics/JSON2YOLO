@@ -247,7 +247,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
     print('Done. Output saved to %s' % Path(dir).absolute())
 
 
-def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, cls91to80=True):
+def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, cls91to80=False):
     save_dir = make_dirs()  # output directory
     coco80 = coco91_to_coco80_class()
 
@@ -276,8 +276,9 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, cls91
             box[[1, 3]] /= h  # normalize y
 
             # Segments
-            segments = [j for i in x['segmentation'] for j in i]  # all segments concatenated
-            s = (np.array(segments).reshape(-1, 2) / np.array([w, h])).reshape(-1).tolist()
+            if use_segments:
+                segments = [j for i in x['segmentation'] for j in i]  # all segments concatenated
+                s = (np.array(segments).reshape(-1, 2) / np.array([w, h])).reshape(-1).tolist()
 
             # Write
             if box[2] > 0 and box[3] > 0:  # if w > 0 and h > 0
