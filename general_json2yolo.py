@@ -17,7 +17,7 @@ def convert_infolks_json(name, files, img_path):
     for file in glob.glob(files):
         with open(file) as f:
             jdata = json.load(f)
-            jdata['json_file'] = file
+            jdata['json_file'] = files
             data.append(jdata)
 
     # Write images and shapes
