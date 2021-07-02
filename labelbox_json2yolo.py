@@ -54,7 +54,7 @@ def convert(file, zip=True):
     # Zip
     if zip:
         print(f'Zipping as {save_dir}.zip...')
-        os.system(f'zip -qr {save_dir}.zip {save_dir}')  # zip results
+        os.system(f'zip -qr {save_dir}.zip {save_dir}')
 
     print('Conversion completed successfully!')
 
