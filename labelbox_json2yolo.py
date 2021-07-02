@@ -13,7 +13,8 @@ from utils import make_dirs
 def convert(file, zip=True):
     # Convert Labelbox JSON labels to YOLO labels
     names = []  # class names
-    save_dir = make_dirs(Path(file).stem)
+    file = Path(file)
+    save_dir = make_dirs(file.stem)
     with open(file) as f:
         data = json.load(f)  # load JSON
 
@@ -40,8 +41,14 @@ def convert(file, zip=True):
                 f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
     # Save dataset.yaml
-    d = {'train': 'path/to/train_imgs', 'val': 'path/to/val_imgs', 'nc': len(names), 'names': names}  # dictionary
-    with open(save_dir / Path(file).with_suffix('.yaml').name, 'w') as f:
+    d = {'path': f"../datasets/{file.name}  # dataset root dir",
+         'train': "images/train  # train images (relative to path) 128 images",
+         'val': "images/val  # val images (relative to path) 128 images",
+         'test': " # test images (optional)",
+         'nc': len(names),
+         'names': names}  # dictionary
+
+    with open(save_dir / file.with_suffix('.yaml').name, 'w') as f:
         yaml.dump(d, f, sort_keys=False)
 
     # Zip
