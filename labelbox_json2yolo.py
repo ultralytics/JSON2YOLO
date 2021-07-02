@@ -1,23 +1,25 @@
 import json
+import os
 from pathlib import Path
 
 import requests
 import yaml
 from PIL import Image
+from tqdm import tqdm
 
 from utils import make_dirs
 
 
-def convert(file):
+def convert(file, zip=True):
     # Convert Labelbox JSON labels to YOLO labels
     names = []  # class names
     save_dir = make_dirs(Path(file).stem)
     with open(file) as f:
         data = json.load(f)  # load JSON
 
-    for img in data:
-        img_path = img['Labeled Data']
-        im = Image.open(requests.get(img_path, stream=True).raw if img_path.startswith('http') else img_path)  # open
+    for img in tqdm(data, desc=f'Converting {file}'):
+        im_path = img['Labeled Data']
+        im = Image.open(requests.get(im_path, stream=True).raw if im_path.startswith('http') else im_path)  # open
         width, height = im.size  # image size
         label_path = save_dir / 'labels' / Path(img['External ID']).with_suffix('.txt').name
         image_path = save_dir / 'images' / img['External ID']
@@ -43,8 +45,12 @@ def convert(file):
         yaml.dump(d, f, sort_keys=False)
 
     # Zip
-    # os.system(f'zip -r ../{save_dir}.zip {save_dir}')  # zip results
+    if zip:
+        print(f'Zipping as {save_dir}.zip...')
+        os.system(f'zip -qr {save_dir}.zip {save_dir}')  # zip results
+
+    print('Conversion completed successfully!')
 
 
 if __name__ == '__main__':
-    convert('labelbox-export-2021-02-03T02_11_34.601Z.json')
+    convert('export-2021-06-29T15_25_41.934Z.json')
