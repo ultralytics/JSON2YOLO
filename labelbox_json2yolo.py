@@ -41,7 +41,7 @@ def convert(file, zip=True):
                 f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
     # Save dataset.yaml
-    d = {'path': f"../datasets/{file.name}  # dataset root dir",
+    d = {'path': f"../datasets/{file.stem}  # dataset root dir",
          'train': "images/train  # train images (relative to path) 128 images",
          'val': "images/val  # val images (relative to path) 128 images",
          'test': " # test images (optional)",
