@@ -157,7 +157,6 @@ def flatten_recursive_folders(path='../../Downloads/data/sm4/'):  # from utils i
     print('Flattening complete: %g jsons and images' % n)
 
 
-
 def coco91_to_coco80_class():  # converts 80-index (val2014) to 91-index (paper)
     # https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/
     x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, None, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, None, 24, 25, None,
