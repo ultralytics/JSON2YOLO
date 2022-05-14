@@ -61,7 +61,7 @@ def convert_infolks_json(name, files, img_path):
     # Split data into train, test, and validate files
     split_files(name, file_name)
     write_data_data(name + '.data', nc=len(names))
-    print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
+    print(f'Done. Output saved to {os.getcwd() + os.sep + path}')
 
 
 # Convert vott JSON file into YOLO-format labels -------------------------------
@@ -134,7 +134,7 @@ def convert_vott_json(name, files, img_path):
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
-    print('Done. Output saved to %s' % (os.getcwd() + os.sep + path))
+    print(f'Done. Output saved to {os.getcwd() + os.sep + path}')
 
 
 # Convert ath JSON file into YOLO-format labels --------------------------------
@@ -144,8 +144,12 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
 
     jsons = []
     for dirpath, dirnames, filenames in os.walk(json_dir):
-        for filename in [f for f in filenames if f.lower().endswith('.json')]:
-            jsons.append(os.path.join(dirpath, filename))
+        jsons.extend(
+            os.path.join(dirpath, filename)
+            for filename in [
+                f for f in filenames if f.lower().endswith('.json')
+            ]
+        )
 
     # Import json
     n1, n2, n3 = 0, 0, 0
@@ -166,8 +170,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
         #     [f.write('%s\n' % a) for a in names]
 
         # Write labels file
-        for i, x in enumerate(tqdm(data['_via_img_metadata'].values(), desc='Processing %s' % json_file)):
-
+        for x in tqdm(data['_via_img_metadata'].values(), desc=f'Processing {json_file}'):
             image_file = str(Path(json_file).parent / x['filename'])
             f = glob.glob(image_file)  # image file
             if len(f):
@@ -182,13 +185,13 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
                     nlabels = 0
                     try:
                         with open(label_file, 'a') as file:  # write labelsfile
-                            for a in x['regions']:
-                                # try:
-                                #     category_id = int(a['region_attributes']['class'])
-                                # except:
-                                #     category_id = int(a['region_attributes']['Class'])
-                                category_id = 0  # single-class
+                            # try:
+                            #     category_id = int(a['region_attributes']['class'])
+                            # except:
+                            #     category_id = int(a['region_attributes']['Class'])
+                            category_id = 0  # single-class
 
+                            for a in x['regions']:
                                 # bounding box format is [x-min, y-min, x-max, y-max]
                                 box = a['shape_attributes']
                                 box = np.array([box['x'], box['y'], box['width'], box['height']],
@@ -204,7 +207,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
                                     nlabels += 1
 
                         if nlabels == 0:  # remove non-labelled images from dataset
-                            os.system('rm %s' % label_file)
+                            os.system(f'rm {label_file}')
                             # print('no labels for %s' % f)
                             continue  # next file
 
@@ -224,8 +227,8 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
                             n2 += 1  # correct images
 
                     except:
-                        os.system('rm %s' % label_file)
-                        print('problem with %s' % f)
+                        os.system(f'rm {label_file}')
+                        print(f'problem with {f}')
 
             else:
                 missing_images.append(image_file)
@@ -244,7 +247,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
     # Split data into train, test, and validate files
     split_rows_simple(dir + 'data.txt')
     write_data_data(dir + 'data.data', nc=1)
-    print('Done. Output saved to %s' % Path(dir).absolute())
+    print(f'Done. Output saved to {Path(dir).absolute()}')
 
 
 def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, cls91to80=False):
