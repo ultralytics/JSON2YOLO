@@ -55,6 +55,7 @@ def convert_infolks_json(name, files, img_path):
                 box[[0, 2]] /= wh[i][0]  # normalize x by width
                 box[[1, 3]] /= wh[i][1]  # normalize y by height
                 box = [box[[0, 2]].mean(), box[[1, 3]].mean(), box[2] - box[0], box[3] - box[1]]  # xywh
+                box = np.array(box, dtype=np.float64).clip(0, 1).tolist()
                 if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
                     file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
 
@@ -122,6 +123,7 @@ def convert_vott_json(name, files, img_path):
                         box[[0, 2]] /= wh[0]  # normalize x by width
                         box[[1, 3]] /= wh[1]  # normalize y by height
                         box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2], box[3]]  # xywh
+                        box = np.array(box, dtype=np.float64).clip(0, 1).tolist()
 
                         if (box[2] > 0.) and (box[3] > 0.):  # if w > 0 and h > 0
                             file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
@@ -200,6 +202,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
                                 box[[1, 3]] /= wh[1]  # normalize y by height
                                 box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2],
                                        box[3]]  # xywh (left-top to center x-y)
+                                box = np.array(box,dtype=np.float64).clip(0, 1).tolist()
 
                                 if box[2] > 0. and box[3] > 0.:  # if w > 0 and h > 0
                                     file.write('%g %.6f %.6f %.6f %.6f\n' % (category_id, *box))
@@ -277,6 +280,7 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, cls91
             box[:2] += box[2:] / 2  # xy top-left corner to center
             box[[0, 2]] /= w  # normalize x
             box[[1, 3]] /= h  # normalize y
+            box = box.clip(0,1)
 
             # Segments
             if use_segments:
@@ -295,7 +299,7 @@ if __name__ == '__main__':
     source = 'COCO'
 
     if source == 'COCO':
-        convert_coco_json('../../Downloads/Objects365')  # directory with *.json
+        convert_coco_json('../train')  # directory with *.json
 
     elif source == 'infolks':  # Infolks https://infolks.info/
         convert_infolks_json(name='out',
