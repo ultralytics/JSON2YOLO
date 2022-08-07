@@ -299,7 +299,7 @@ if __name__ == '__main__':
     source = 'COCO'
 
     if source == 'COCO':
-        convert_coco_json('../train')  # directory with *.json
+        convert_coco_json('../../Downloads/Objects365')  # directory with *.json
 
     elif source == 'infolks':  # Infolks https://infolks.info/
         convert_infolks_json(name='out',
