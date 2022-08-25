@@ -14,6 +14,5 @@ setup(name='json2yolo',
         "pyYAML",
         "requests",
         "tqdm",
-
       ],
 )
