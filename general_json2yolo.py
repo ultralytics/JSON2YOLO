@@ -1,3 +1,4 @@
+import contextlib
 import json
 
 import cv2
@@ -81,10 +82,8 @@ def convert_vott_json(name, files, img_path):
     # Get all categories
     file_name, wh, cat = [], [], []
     for i, x in enumerate(tqdm(data, desc='Files and Shapes')):
-        try:
+        with contextlib.suppress(Exception):
             cat.extend(a['tags'][0] for a in x['regions'])  # categories
-        except:
-            pass
 
     # Write *.names file
     names = sorted(pd.unique(cat))
@@ -226,7 +225,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
                                 file.write('%s\n' % ifile)
                             n2 += 1  # correct images
 
-                    except:
+                    except Exception:
                         os.system(f'rm {label_file}')
                         print(f'problem with {f}')
 
@@ -295,6 +294,7 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, cls91
                 with open((fn / f).with_suffix('.txt'), 'a') as file:
                     file.write(('%g ' * len(line)).rstrip() % line + '\n')
 
+
 def min_index(arr1, arr2):
     """Find a pair of indexes with the shortest distance. 
     Args:
@@ -303,10 +303,8 @@ def min_index(arr1, arr2):
     Return:
         a pair of indexes(tuple).
     """
-    # (N, M)
     dis = ((arr1[:, None, :] - arr2[None, :, :]) ** 2).sum(-1)
-    index = np.unravel_index(np.argmin(dis, axis=None), dis.shape)
-    return index
+    return np.unravel_index(np.argmin(dis, axis=None), dis.shape)
 
 
 def merge_multi_segment(segments):
@@ -338,28 +336,25 @@ def merge_multi_segment(segments):
                 # middle segments have two indexes
                 # reverse the index of middle segments
                 if len(idx) == 2 and idx[0] > idx[1]:
-                    idx = idx[::-1]       
+                    idx = idx[::-1]
                     segments[i] = segments[i][::-1, :]
 
                 segments[i] = np.roll(segments[i], -idx[0], axis=0)
-                segments[i] = np.concatenate([segments[i], segments[i][0:1]])
+                segments[i] = np.concatenate([segments[i], segments[i][:1]])
                 # deal with the first segment and the last one
-                if i == 0 or i == (len(idx_list) - 1):
+                if i in [0, len(idx_list) - 1]:
                     s.append(segments[i])
-                # deal with the middle ones
                 else:
                     idx = [0, idx[1] - idx[0]]
                     s.append(segments[i][idx[0]:idx[1] + 1])
 
-        # backward connection
         else:
             for i in range(len(idx_list) - 1, -1, -1):
-                if i != 0 and i != (len(idx_list) - 1):
+                if i not in [0, len(idx_list) - 1]:
                     idx = idx_list[i]
                     nidx = abs(idx[1] - idx[0])
                     s.append(segments[i][nidx:])
     return s
-
 
 
 if __name__ == '__main__':
