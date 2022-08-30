@@ -384,7 +384,9 @@ if __name__ == '__main__':
     source = 'COCO'
 
     if source == 'COCO':
-        convert_coco_json('../datasets/coco/annotations', False, True)  # directory with *.json
+        convert_coco_json('../datasets/coco/annotations',  # directory with *.json
+                          use_segments=True,
+                          cls91to80=True)
 
     elif source == 'infolks':  # Infolks https://infolks.info/
         convert_infolks_json(name='out',
