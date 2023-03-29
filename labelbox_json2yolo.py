@@ -27,16 +27,17 @@ def getPolygons(url):
     for contour in contours:
         epsilon = 0.001 * cv2.arcLength(contour, True)
         contour_approx = cv2.approxPolyDP(contour, epsilon, True)
-        
+
         contours_approx.append(contour_approx)
         polygon = (contour_approx.flatten().reshape(-1, 2) / np.array([w, h])).tolist()
         polygons.append(polygon)
     cv2.drawContours(image, contours_approx, -1, 128, line_width)
     #format the data correctly
     result = [[f"{x},{y}" for x, y in sublist] for sublist in polygons]
-    polygons = [[float(x) for pair in sublist for x in pair.split(',')] for sublist in result]
-
-    return polygons
+    return [
+        [float(x) for pair in sublist for x in pair.split(',')]
+        for sublist in result
+    ]
 
 def convert(file, zip=True):
     # Convert Labelbox JSON labels to YOLO labels
