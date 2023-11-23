@@ -310,9 +310,13 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, use_k
                     if s not in segments:
                         segments.append(s)
                 if use_keypoints:
-                    k = (np.array(ann['keypoints']).reshape(-1, 3) / np.array([w, h, 1])).reshape(-1).tolist()
-                    k = box + k
-                    keypoints.append(k)
+                    if 'keypoints' not in ann:
+                        keypoints.append([])
+                        continue
+                    else:
+                        k = (np.array(ann['keypoints']).reshape(-1, 3) / np.array([w, h, 1])).reshape(-1).tolist()
+                        k = box + k
+                        keypoints.append(k)
 
             # Write
             with open((fn / f).with_suffix('.txt'), 'a') as file:
