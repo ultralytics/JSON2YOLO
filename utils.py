@@ -76,11 +76,10 @@ def delete_dirs(str_dir):
         c_path = os.path.join(str_dir, name)
         if os.path.isdir(c_path):
             delete_dirs(c_path)
-        else:
-            if c_path.endswith(".jpg") or c_path.endswith(".bmp") or c_path.endswith(".jpeg") or\
+        elif c_path.endswith(".jpg") or c_path.endswith(".bmp") or c_path.endswith(".jpeg") or\
                c_path.endswith(".png") or c_path.endswith(".tif") or c_path.endswith(".tiff") or\
                c_path.endswith(".dng") or c_path.endswith(".txt"):
-                os.remove(c_path)
+            os.remove(c_path)
 
 
 def make_dirs(dir='new_dir/'):
@@ -164,17 +163,104 @@ def flatten_recursive_folders(path='../../Downloads/data/sm4/'):  # from utils i
                 image = parent / f
                 json = Path(parent.replace('images', 'json')) / str(f).replace(suffix, '.json')
 
-                os.system("cp '%s' '%s'" % (json, json_new))
-                os.system("cp '%s' '%s'" % (image, image_new))
-                # cv2.imwrite(str(image_new), cv2.imread(str(image)))
+                os.system(f"cp '{json}' '{json_new}'")
+                os.system(f"cp '{image}' '{image_new}'")
+                            # cv2.imwrite(str(image_new), cv2.imread(str(image)))
 
     print('Flattening complete: %g jsons and images' % n)
 
 
 def coco91_to_coco80_class():  # converts 80-index (val2014) to 91-index (paper)
-    # https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/
-    x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, None, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, None, 24, 25, None,
-         None, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, None, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
-         51, 52, 53, 54, 55, 56, 57, 58, 59, None, 60, None, None, 61, None, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72,
-         None, 73, 74, 75, 76, 77, 78, 79, None]
-    return x
+    return [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        None,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        None,
+        24,
+        25,
+        None,
+        None,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        None,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        None,
+        60,
+        None,
+        None,
+        61,
+        None,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        None,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        None,
+    ]
