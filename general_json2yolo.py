@@ -344,7 +344,7 @@ def show_kpt_shape_flip_idx(data):
             continue
         keypoints = category['keypoints']
         num = len(keypoints)
-        print('kpt_shape: [' + str(num) + ', 3]')
+        print(f'kpt_shape: [{num}, 3]')
         flip_idx = list(range(num))
         for i, name in enumerate(keypoints):
             name = name.lower()
@@ -366,10 +366,7 @@ def is_clockwise(contour):
     num = len(contour)
     for i, point in enumerate(contour):
         p1 = contour[i]
-        if i < num - 1:
-            p2 = contour[i + 1]
-        else:
-            p2 = contour[0]
+        p2 = contour[i + 1] if i < num - 1 else contour[0]
         value += (p2[0][0] - p1[0][0]) * (p2[0][1] + p1[0][1]);
     return value < 0
 
@@ -380,26 +377,17 @@ def get_merge_point_idx(contour1, contour2):
     for i, p1 in enumerate(contour1):
         for j, p2 in enumerate(contour2):
             distance = pow(p2[0][0] - p1[0][0], 2) + pow(p2[0][1] - p1[0][1], 2);
-            if distance_min < 0:
-                distance_min = distance
-                idx1 = i
-                idx2 = j
-            elif distance < distance_min:
+            if distance_min < 0 or distance < distance_min:
                 distance_min = distance
                 idx1 = i
                 idx2 = j
     return idx1, idx2
 
 def merge_contours(contour1, contour2, idx1, idx2):
-    contour = []
-    for i in list(range(0, idx1 + 1)):
-        contour.append(contour1[i])
-    for i in list(range(idx2, len(contour2))):
-        contour.append(contour2[i])
-    for i in list(range(0, idx2 + 1)):
-        contour.append(contour2[i])
-    for i in list(range(idx1, len(contour1))):
-        contour.append(contour1[i])
+    contour = [contour1[i] for i in list(range(0, idx1 + 1))]
+    contour.extend(contour2[i] for i in list(range(idx2, len(contour2))))
+    contour.extend(contour2[i] for i in list(range(0, idx2 + 1)))
+    contour.extend(contour1[i] for i in list(range(idx1, len(contour1))))
     contour = np.array(contour)
     return contour
 
@@ -436,12 +424,9 @@ def mask2polygon(image):
                 continue
             contours_parent[parent_idx] = merge_with_parent(contour_parent, contour)
 
-    contours_parent_tmp = []
-    for contour in contours_parent:
-        if len(contour) == 0:
-            continue
-        contours_parent_tmp.append(contour)
-
+    contours_parent_tmp = [
+        contour for contour in contours_parent if len(contour) != 0
+    ]
     polygons = []
     for contour in contours_parent_tmp:
         polygon = contour.flatten().tolist()
@@ -451,10 +436,9 @@ def mask2polygon(image):
 def rle2polygon(segmentation):
     if isinstance(segmentation["counts"], list):
         segmentation = mask.frPyObjects(segmentation, *segmentation["size"])
-    m = mask.decode(segmentation) 
+    m = mask.decode(segmentation)
     m[m > 0] = 255
-    polygons = mask2polygon(m)
-    return polygons
+    return mask2polygon(m)
 
 def min_index(arr1, arr2):
     """Find a pair of indexes with the shortest distance. 
