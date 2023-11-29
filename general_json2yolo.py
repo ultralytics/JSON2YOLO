@@ -283,7 +283,10 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, use_k
             keypoints = []
             for ann in anns:
                 # The COCO box format is [top left x, top left y, width, height]
-                box = np.array(ann['bbox'], dtype=np.float64)
+                if len(ann['bbox']) == 0:
+                    box = bbox_from_keypoints(ann)
+                else:
+                    box = np.array(ann['bbox'], dtype=np.float64)
                 box[:2] += box[2:] / 2  # xy top-left corner to center
                 box[[0, 2]] /= w  # normalize x
                 box[[1, 3]] /= h  # normalize y
@@ -327,6 +330,13 @@ def convert_coco_json(json_dir='../coco/annotations/', use_segments=False, use_k
                         line = *(segments[i] if use_segments and len(segments[i]) > 0 else bboxes[i]),  # cls, box or segments
                     file.write(('%g ' * len(line)).rstrip() % line + '\n')
 
+def bbox_from_keypoints(ann):
+    if 'keypoints' not in ann:
+        return
+    k = np.array(ann['keypoints']).reshape(-1, 3)
+    x_list, y_list, v_list = zip(*k)
+    box = [min(x_list), min(y_list), max(x_list) - min(x_list), max(y_list) - min(y_list)]
+    return np.array(box, dtype=np.float64)
 
 def show_kpt_shape_flip_idx(data):
     for category in data['categories']:
