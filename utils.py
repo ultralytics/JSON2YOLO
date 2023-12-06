@@ -69,11 +69,25 @@ def split_indices(x, train=0.9, test=0.1, validate=0.0, shuffle=True):  # split 
     return v[:i], v[i:j], v[j:k]  # return indices
 
 
+def delete_dirs(str_dir):
+    # Delete files in folders
+    ls = os.listdir(str_dir)
+    for name in ls:
+        c_path = os.path.join(str_dir, name)
+        if os.path.isdir(c_path):
+            delete_dirs(c_path)
+        else:
+            if c_path.endswith(".jpg") or c_path.endswith(".bmp") or c_path.endswith(".jpeg") or\
+               c_path.endswith(".png") or c_path.endswith(".tif") or c_path.endswith(".tiff") or\
+               c_path.endswith(".dng") or c_path.endswith(".txt"):
+                os.remove(c_path)
+
+
 def make_dirs(dir='new_dir/'):
     # Create folders
     dir = Path(dir)
     if dir.exists():
-        shutil.rmtree(dir)  # delete dir
+        delete_dirs(dir)  # delete dir
     for p in dir, dir / 'labels', dir / 'images':
         p.mkdir(parents=True, exist_ok=True)  # make dir
     return dir
