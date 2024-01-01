@@ -154,7 +154,7 @@ def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils i
 
                 os.system(f"cp '{json}' '{json_new}'")
                 os.system(f"cp '{image}' '{image_new}'")
-                            # cv2.imwrite(str(image_new), cv2.imread(str(image)))
+                # cv2.imwrite(str(image_new), cv2.imread(str(image)))
 
     print("Flattening complete: %g jsons and images" % n)
 
