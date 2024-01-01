@@ -152,16 +152,15 @@ def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils i
                 image = parent / f
                 json = Path(parent.replace("images", "json")) / str(f).replace(suffix, ".json")
 
-                os.system("cp '%s' '%s'" % (json, json_new))
-                os.system("cp '%s' '%s'" % (image, image_new))
-                # cv2.imwrite(str(image_new), cv2.imread(str(image)))
+                os.system(f"cp '{json}' '{json_new}'")
+                os.system(f"cp '{image}' '{image_new}'")
+                            # cv2.imwrite(str(image_new), cv2.imread(str(image)))
 
     print("Flattening complete: %g jsons and images" % n)
 
 
 def coco91_to_coco80_class():  # converts 80-index (val2014) to 91-index (paper)
-    # https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/
-    x = [
+    return [
         0,
         1,
         2,
@@ -254,4 +253,3 @@ def coco91_to_coco80_class():  # converts 80-index (val2014) to 91-index (paper)
         79,
         None,
     ]
-    return x
