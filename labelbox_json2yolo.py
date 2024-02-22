@@ -11,7 +11,7 @@ from utils import make_dirs
 
 
 def convert(file, zip=True):
-    # Convert Labelbox JSON labels to YOLO labels
+    """Converts Labelbox JSON labels to YOLO format and saves them, with optional zipping."""
     names = []  # class names
     file = Path(file)
     save_dir = make_dirs(file.stem)

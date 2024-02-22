@@ -18,7 +18,7 @@ for orientation in ExifTags.TAGS.keys():
 
 
 def exif_size(img):
-    # Returns exif-corrected PIL size
+    """Returns the EXIF-corrected PIL image size as a tuple (width, height)."""
     s = img.size  # (width, height)
     try:
         rotation = dict(img._getexif().items())[orientation]
@@ -70,7 +70,7 @@ def split_indices(x, train=0.9, test=0.1, validate=0.0, shuffle=True):  # split 
 
 
 def make_dirs(dir="new_dir/"):
-    # Create folders
+    """Creates a directory with subdirectories 'labels' and 'images', removing existing ones."""
     dir = Path(dir)
     if dir.exists():
         shutil.rmtree(dir)  # delete dir
@@ -80,7 +80,7 @@ def make_dirs(dir="new_dir/"):
 
 
 def write_data_data(fname="data.data", nc=80):
-    # write darknet *.data file
+    """Writes a Darknet-style .data file with dataset and training configuration."""
     lines = [
         "classes = %g\n" % nc,
         "train =../out/data_train.txt\n",
