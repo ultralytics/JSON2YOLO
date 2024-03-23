@@ -1,3 +1,4 @@
+# Ultralytics YOLO 🚀, AGPL-3.0 license
 # Label studio video-frame annotation JSON to YOLO format conversion
 
 from pathlib import Path
