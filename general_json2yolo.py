@@ -1,6 +1,8 @@
 import contextlib
 import json
+import shutil
 
+import yaml
 import cv2
 import pandas as pd
 from PIL import Image
@@ -258,12 +260,17 @@ def convert_coco_json(json_dir="../coco/annotations/", use_segments=False, cls91
     save_dir = make_dirs()  # output directory
     coco80 = coco91_to_coco80_class()
 
+    categories_dict = {}
+
     # Import json
-    for json_file in sorted(Path(json_dir).resolve().glob("*.json")):
-        fn = Path(save_dir) / "labels" / json_file.stem.replace("instances_", "")  # folder name
+    for json_file in sorted(Path(json_dir).resolve().glob("*coco*.json")):
+        fn = Path(save_dir) / "labels" / json_file.stem.replace("instances_", "").replace("_coco", "")  # folder name
         fn.mkdir()
         with open(json_file) as f:
             data = json.load(f)
+
+        # Create categories_dict
+        categories_dict = {item["id"] - 1: item["name"] for item in data["categories"]}
 
         # Create image dict
         images = {"%g" % x["id"]: x for x in data["images"]}
@@ -311,6 +318,19 @@ def convert_coco_json(json_dir="../coco/annotations/", use_segments=False, cls91
                 for i in range(len(bboxes)):
                     line = (*(segments[i] if use_segments else bboxes[i]),)  # cls, box or segments
                     file.write(("%g " * len(line)).rstrip() % line + "\n")
+
+        yaml_dict = {
+            "names": {k: v for k, v in categories_dict.items()},
+            # "path": "yolo_datasets",
+            "train": "images/train",
+            "val": "images/val",
+        }
+
+        with open((Path(save_dir) / json_file.stem).with_suffix(".yaml"), "w") as f:
+            yaml.dump(yaml_dict, f)
+        shutil.copy(
+            (Path(save_dir) / json_file.stem).with_suffix(".yaml"), (Path(save_dir) / "classes").with_suffix(".yaml")
+        )
 
 
 def min_index(arr1, arr2):
