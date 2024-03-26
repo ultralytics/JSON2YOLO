@@ -18,7 +18,7 @@ for orientation in ExifTags.TAGS.keys():
 
 
 def exif_size(img):
-    # Returns exif-corrected PIL size
+    """Returns the EXIF-corrected PIL image size as a tuple (width, height)."""
     s = img.size  # (width, height)
     try:
         rotation = dict(img._getexif().items())[orientation]
@@ -70,7 +70,7 @@ def split_indices(x, train=0.9, test=0.1, validate=0.0, shuffle=True):  # split 
 
 
 def make_dirs(dir="new_dir/"):
-    # Create folders
+    """Creates a directory with subdirectories 'labels' and 'images', removing existing ones."""
     dir = Path(dir)
     if dir.exists():
         shutil.rmtree(dir)  # delete dir
@@ -80,7 +80,7 @@ def make_dirs(dir="new_dir/"):
 
 
 def write_data_data(fname="data.data", nc=80):
-    # write darknet *.data file
+    """Writes a Darknet-style .data file with dataset and training configuration."""
     lines = [
         "classes = %g\n" % nc,
         "train =../out/data_train.txt\n",
@@ -152,16 +152,15 @@ def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils i
                 image = parent / f
                 json = Path(parent.replace("images", "json")) / str(f).replace(suffix, ".json")
 
-                os.system("cp '%s' '%s'" % (json, json_new))
-                os.system("cp '%s' '%s'" % (image, image_new))
+                os.system(f"cp '{json}' '{json_new}'")
+                os.system(f"cp '{image}' '{image_new}'")
                 # cv2.imwrite(str(image_new), cv2.imread(str(image)))
 
     print("Flattening complete: %g jsons and images" % n)
 
 
 def coco91_to_coco80_class():  # converts 80-index (val2014) to 91-index (paper)
-    # https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/
-    x = [
+    return [
         0,
         1,
         2,
@@ -254,4 +253,3 @@ def coco91_to_coco80_class():  # converts 80-index (val2014) to 91-index (paper)
         79,
         None,
     ]
-    return x
