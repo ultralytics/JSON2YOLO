@@ -7,7 +7,7 @@ Welcome to the [COCO2YOLO](https://github.com/ultralytics/COCO2YOLO) repository!
 
 This process is essential for machine learning practitioners looking to train object detection models using the Darknet framework. Our code is flexible and can be utilized across various platforms including Linux, MacOS, and Windows.
 
-[![Ultralytics Actions](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml/badge.svg)](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml)
+[![Ultralytics Actions](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml/badge.svg)](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml) <a href="https://ultralytics.com/discord"><img alt="Discord" src="https://img.shields.io/discord/1089800235347353640?logo=discord&logoColor=white&label=Discord&color=blue"></a>
 
 # ⚙️ Requirements
 
