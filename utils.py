@@ -105,7 +105,9 @@ def image_folder2file(folder="images/"):  # from utils import *; image_folder2fi
 
 
 def add_coco_background(path="../data/sm4/", n=1000):  # from utils import *; add_coco_background()
-    """Adds COCO dataset background images to a specified folder and lists them in outb.txt; usage:
+    """
+    Adds COCO dataset background images to a specified folder and lists them in outb.txt; usage:
+
     `add_coco_background('path/', 1000)`.
     """
     p = f"{path}background"
