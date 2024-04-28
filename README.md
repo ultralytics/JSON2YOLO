@@ -11,7 +11,7 @@ This process is essential for machine learning practitioners looking to train ob
 
 # ⚙️ Requirements
 
-To get started with COCO2YOLO, you'll need a Python environment running version 3.8 or later. Additionally, you'll need to install all the necessary dependencies listed in our [requirements.txt](https://github.com/ultralytics/JSON2YOLO/blob/master/requirements.txt) file. You can install these dependencies using the following pip command in your terminal:
+To get started with COCO2YOLO, you'll need a Python environment running version 3.8 or later. Additionally, you'll need to install all the necessary dependencies listed in our [requirements.txt](https://github.com/ultralytics/JSON2YOLO/blob/main/requirements.txt) file. You can install these dependencies using the following pip command in your terminal:
 
 ```bash
 $ pip install -r requirements.txt # Installs all the required packages
