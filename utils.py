@@ -31,7 +31,7 @@ def exif_size(img):
 
 
 def split_rows_simple(file="../data/sm4/out.txt"):  # from utils import *; split_rows_simple()
-    # splits one textfile into 3 smaller ones based upon train, test, val ratios
+    """Splits a text file into train, test, and val files based on specified ratios; expects a file path as input."""
     with open(file) as f:
         lines = f.readlines()
 
@@ -46,6 +46,7 @@ def split_rows_simple(file="../data/sm4/out.txt"):  # from utils import *; split
 
 
 def split_files(out_path, file_name, prefix_path=""):  # split training data
+    """Splits file names into separate train, test, and val datasets and writes them to prefixed paths."""
     file_name = list(filter(lambda x: len(x) > 0, file_name))
     file_name = sorted(file_name)
     i, j, k = split_indices(file_name, train=0.9, test=0.1, validate=0.0)
@@ -58,6 +59,7 @@ def split_files(out_path, file_name, prefix_path=""):  # split training data
 
 
 def split_indices(x, train=0.9, test=0.1, validate=0.0, shuffle=True):  # split training data
+    """Splits array indices for train, test, and validate datasets according to specified ratios."""
     n = len(x)
     v = np.arange(n)
     if shuffle:
@@ -95,7 +97,7 @@ def write_data_data(fname="data.data", nc=80):
 
 
 def image_folder2file(folder="images/"):  # from utils import *; image_folder2file()
-    # write a txt file listing all imaged in folder
+    """Generates a txt file listing all images in a specified folder; usage: `image_folder2file('path/to/folder/')`."""
     s = glob.glob(f"{folder}*.*")
     with open(f"{folder[:-1]}.txt", "w") as file:
         for l in s:
@@ -103,7 +105,7 @@ def image_folder2file(folder="images/"):  # from utils import *; image_folder2fi
 
 
 def add_coco_background(path="../data/sm4/", n=1000):  # from utils import *; add_coco_background()
-    # add coco background to sm4 in outb.txt
+    """Adds COCO dataset background images to a specified folder and lists them in outb.txt; usage: `add_coco_background('path/', 1000)`."""
     p = f"{path}background"
     if os.path.exists(p):
         shutil.rmtree(p)  # delete output folder
@@ -123,12 +125,12 @@ def add_coco_background(path="../data/sm4/", n=1000):  # from utils import *; ad
 
 
 def create_single_class_dataset(path="../data/sm3"):  # from utils import *; create_single_class_dataset('../data/sm3/')
-    # creates a single-class version of an existing dataset
+    """Creates a single-class version of an existing dataset in the specified path."""
     os.system(f"mkdir {path}_1cls")
 
 
 def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils import *; flatten_recursive_folders()
-    # flattens nested folders in path/images and path/JSON into single folders
+    """Flattens nested folders in 'path/images' and 'path/json' into single 'images_flat' and 'json_flat' directories."""
     idir, jdir = f"{path}images/", f"{path}json/"
     nidir, njdir = Path(f"{path}images_flat/"), Path(f"{path}json_flat/")
     n = 0
@@ -160,6 +162,7 @@ def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils i
 
 
 def coco91_to_coco80_class():  # converts 80-index (val2014) to 91-index (paper)
+    """Converts COCO 91-class index (paper) to 80-class index (2014 challenge)."""
     return [
         0,
         1,

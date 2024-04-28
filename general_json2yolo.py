@@ -138,7 +138,7 @@ def convert_vott_json(name, files, img_path):
 
 # Convert ath JSON file into YOLO-format labels --------------------------------
 def convert_ath_json(json_dir):  # dir contains json annotations and images
-    # Create folders
+    """Converts ath JSON annotations to YOLO-format labels, resizes images, and organizes data for training."""
     dir = make_dirs()  # output directory
 
     jsons = []
