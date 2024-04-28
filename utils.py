@@ -105,7 +105,9 @@ def image_folder2file(folder="images/"):  # from utils import *; image_folder2fi
 
 
 def add_coco_background(path="../data/sm4/", n=1000):  # from utils import *; add_coco_background()
-    """Adds COCO dataset background images to a specified folder and lists them in outb.txt; usage: `add_coco_background('path/', 1000)`."""
+    """Adds COCO dataset background images to a specified folder and lists them in outb.txt; usage:
+    `add_coco_background('path/', 1000)`.
+    """
     p = f"{path}background"
     if os.path.exists(p):
         shutil.rmtree(p)  # delete output folder
@@ -130,7 +132,9 @@ def create_single_class_dataset(path="../data/sm3"):  # from utils import *; cre
 
 
 def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils import *; flatten_recursive_folders()
-    """Flattens nested folders in 'path/images' and 'path/json' into single 'images_flat' and 'json_flat' directories."""
+    """Flattens nested folders in 'path/images' and 'path/json' into single 'images_flat' and 'json_flat'
+    directories.
+    """
     idir, jdir = f"{path}images/", f"{path}json/"
     nidir, njdir = Path(f"{path}images_flat/"), Path(f"{path}json_flat/")
     n = 0

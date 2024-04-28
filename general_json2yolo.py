@@ -1,10 +1,10 @@
 import contextlib
 import json
+from collections import defaultdict
 
 import cv2
 import pandas as pd
 from PIL import Image
-from collections import defaultdict
 
 from utils import *
 
