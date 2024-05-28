@@ -43,7 +43,6 @@ Ultralytics is excited to offer two different licensing options to meet your nee
 
 For bug reports, feature requests, and contributions, head to [GitHub Issues](https://github.com/ultralytics/JSON2YOLO/issues). For questions and discussions about this project and other Ultralytics endeavors, join us on [Discord](https://ultralytics.com/discord)!
 
-
 <br>
 <div align="center">
   <a href="https://github.com/ultralytics"><img src="https://github.com/ultralytics/assets/raw/main/social/logo-social-github.png" width="3%" alt="Ultralytics GitHub"></a>
