@@ -7,11 +7,11 @@ Welcome to the [COCO2YOLO](https://github.com/ultralytics/COCO2YOLO) repository!
 
 This process is essential for machine learning practitioners looking to train object detection models using the Darknet framework. Our code is flexible and can be utilized across various platforms including Linux, MacOS, and Windows.
 
-[![Ultralytics Actions](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml/badge.svg)](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml)
+[![Ultralytics Actions](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml/badge.svg)](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml) <a href="https://ultralytics.com/discord"><img alt="Discord" src="https://img.shields.io/discord/1089800235347353640?logo=discord&logoColor=white&label=Discord&color=blue"></a>
 
 # ⚙️ Requirements
 
-To get started with COCO2YOLO, you'll need a Python environment running version 3.8 or later. Additionally, you'll need to install all the necessary dependencies listed in our [requirements.txt](https://github.com/ultralytics/JSON2YOLO/blob/master/requirements.txt) file. You can install these dependencies using the following pip command in your terminal:
+To get started with COCO2YOLO, you'll need a Python environment running version 3.8 or later. Additionally, you'll need to install all the necessary dependencies listed in our [requirements.txt](https://github.com/ultralytics/JSON2YOLO/blob/main/requirements.txt) file. You can install these dependencies using the following pip command in your terminal:
 
 ```bash
 $ pip install -r requirements.txt # Installs all the required packages
@@ -51,7 +51,7 @@ For bug reports, feature requests, and contributions, head to [GitHub Issues](ht
   <img src="https://github.com/ultralytics/assets/raw/main/social/logo-transparent.png" width="3%" alt="space">
   <a href="https://twitter.com/ultralytics"><img src="https://github.com/ultralytics/assets/raw/main/social/logo-social-twitter.png" width="3%" alt="Ultralytics Twitter"></a>
   <img src="https://github.com/ultralytics/assets/raw/main/social/logo-transparent.png" width="3%" alt="space">
-  <a href="https://youtube.com/ultralytics"><img src="https://github.com/ultralytics/assets/raw/main/social/logo-social-youtube.png" width="3%" alt="Ultralytics YouTube"></a>
+  <a href="https://youtube.com/ultralytics?sub_confirmation=1"><img src="https://github.com/ultralytics/assets/raw/main/social/logo-social-youtube.png" width="3%" alt="Ultralytics YouTube"></a>
   <img src="https://github.com/ultralytics/assets/raw/main/social/logo-transparent.png" width="3%" alt="space">
   <a href="https://www.tiktok.com/@ultralytics"><img src="https://github.com/ultralytics/assets/raw/main/social/logo-social-tiktok.png" width="3%" alt="Ultralytics TikTok"></a>
   <img src="https://github.com/ultralytics/assets/raw/main/social/logo-transparent.png" width="3%" alt="space">
