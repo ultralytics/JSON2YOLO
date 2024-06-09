@@ -3,8 +3,8 @@
 
 from pathlib import Path
 
-import yaml
 import numpy as np
+import yaml
 
 # TODO add steps to fetch media (image or video frame) height and width to convert to YOLO
 # TODO argparse pass "path"
