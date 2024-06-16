@@ -6,9 +6,9 @@ name: Ultralytics Actions
 
 on:
   push:
-    branches: [main,master]
+    branches: [main]
   pull_request_target:
-    branches: [main,master]
+    branches: [main]
 
 jobs:
   format:

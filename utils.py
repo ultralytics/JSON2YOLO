@@ -137,7 +137,7 @@ def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils i
     """Flattens nested folders in 'path/images' and 'path/json' into single 'images_flat' and 'json_flat'
     directories.
     """
-    idir, jdir = f"{path}images/", f"{path}json/"
+    idir, _jdir = f"{path}images/", f"{path}json/"
     nidir, njdir = Path(f"{path}images_flat/"), Path(f"{path}json_flat/")
     n = 0
 

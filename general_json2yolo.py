@@ -24,7 +24,7 @@ def convert_infolks_json(name, files, img_path):
 
     # Write images and shapes
     name = path + os.sep + name
-    file_id, file_name, wh, cat = [], [], [], []
+    _file_id, file_name, wh, cat = [], [], [], []
     for x in tqdm(data, desc="Files and Shapes"):
         f = glob.glob(img_path + Path(x["json_file"]).stem + ".*")[0]
         file_name.append(f)
