@@ -5,7 +5,6 @@ from collections import defaultdict
 import cv2
 import pandas as pd
 from PIL import Image
-
 from utils import *
 
 
@@ -320,6 +319,7 @@ def min_index(arr1, arr2):
     Args:
         arr1: (N, 2).
         arr2: (M, 2).
+
     Return:
         a pair of indexes(tuple).
     """
