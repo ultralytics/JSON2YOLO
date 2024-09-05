@@ -3,7 +3,7 @@
 
 # 🚀 Introduction
 
-Welcome to the [COCO2YOLO](https://github.com/ultralytics/JSON2YOLO) repository! This toolkit is designed to help you convert datasets in JSON format, following the COCO (Common Objects in Context) standards, into YOLO (You Only Look Once) format, which is widely recognized for its efficiency in real-time object detection tasks.
+Welcome to the [JSON2YOLO](https://github.com/ultralytics/JSON2YOLO) repository! This toolkit is designed to help you convert datasets in JSON format, following the COCO (Common Objects in Context) standards, into YOLO (You Only Look Once) format, which is widely recognized for its efficiency in real-time object detection tasks.
 
 This process is essential for machine learning practitioners looking to train object detection models using the Darknet framework. Our code is flexible and can be utilized across various platforms including Linux, MacOS, and Windows.
 
