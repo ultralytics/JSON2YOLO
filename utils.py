@@ -55,7 +55,7 @@ def split_files(out_path, file_name, prefix_path=""):  # split training data
         if item.any():
             with open(f"{out_path}_{key}.txt", "a") as file:
                 for i in item:
-                    file.write("%s%s\n" % (prefix_path, file_name[i]))
+                    file.write(f"{prefix_path}{file_name[i]}\n")
 
 
 def split_indices(x, train=0.9, test=0.1, validate=0.0, shuffle=True):  # split training data
@@ -84,7 +84,7 @@ def make_dirs(dir="new_dir/"):
 def write_data_data(fname="data.data", nc=80):
     """Writes a Darknet-style .data file with dataset and training configuration."""
     lines = [
-        "classes = %g\n" % nc,
+        f"classes = {nc:g}\n",
         "train =../out/data_train.txt\n",
         "valid =../out/data_test.txt\n",
         "names =../out/data.names\n",
@@ -153,7 +153,7 @@ def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils i
             stem, suffix = f.stem, f.suffix
             if suffix.lower()[1:] in img_formats:
                 n += 1
-                stem_new = "%g_" % n + stem
+                stem_new = f"{n:g}_" + stem
                 image_new = nidir / (stem_new + suffix)  # converts all formats to *.jpg
                 json_new = njdir / f"{stem_new}.json"
 
@@ -164,7 +164,7 @@ def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils i
                 os.system(f"cp '{image}' '{image_new}'")
                 # cv2.imwrite(str(image_new), cv2.imread(str(image)))
 
-    print("Flattening complete: %g jsons and images" % n)
+    print(f"Flattening complete: {n:g} jsons and images")
 
 
 def coco91_to_coco80_class():  # converts 80-index (val2014) to 91-index (paper)

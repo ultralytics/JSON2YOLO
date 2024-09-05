@@ -33,13 +33,13 @@ def convert_infolks_json(name, files, img_path):
 
         # filename
         with open(name + ".txt", "a") as file:
-            file.write("%s\n" % f)
+            file.write(f"{f}\n")
 
     # Write *.names file
     names = sorted(np.unique(cat))
     # names.pop(names.index('Missing product'))  # remove
     with open(name + ".names", "a") as file:
-        [file.write("%s\n" % a) for a in names]
+        [file.write(f"{a}\n") for a in names]
 
     # Write labels file
     for i, x in enumerate(tqdm(data, desc="Annotations")):
@@ -58,7 +58,7 @@ def convert_infolks_json(name, files, img_path):
                 box[[1, 3]] /= wh[i][1]  # normalize y by height
                 box = [box[[0, 2]].mean(), box[[1, 3]].mean(), box[2] - box[0], box[3] - box[1]]  # xywh
                 if (box[2] > 0.0) and (box[3] > 0.0):  # if w > 0 and h > 0
-                    file.write("%g %.6f %.6f %.6f %.6f\n" % (category_id, *box))
+                    file.write("{:g} {:.6f} {:.6f} {:.6f} {:.6f}\n".format(category_id, *box))
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
@@ -89,7 +89,7 @@ def convert_vott_json(name, files, img_path):
     # Write *.names file
     names = sorted(pd.unique(cat))
     with open(name + ".names", "a") as file:
-        [file.write("%s\n" % a) for a in names]
+        [file.write(f"{a}\n") for a in names]
 
     # Write labels file
     n1, n2 = 0, 0
@@ -107,7 +107,7 @@ def convert_vott_json(name, files, img_path):
 
                 # append filename to list
                 with open(name + ".txt", "a") as file:
-                    file.write("%s\n" % f)
+                    file.write(f"{f}\n")
 
                 # write labelsfile
                 label_name = Path(f).stem + ".txt"
@@ -123,11 +123,11 @@ def convert_vott_json(name, files, img_path):
                         box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2], box[3]]  # xywh
 
                         if (box[2] > 0.0) and (box[3] > 0.0):  # if w > 0 and h > 0
-                            file.write("%g %.6f %.6f %.6f %.6f\n" % (category_id, *box))
+                            file.write("{:g} {:.6f} {:.6f} {:.6f} {:.6f}\n".format(category_id, *box))
         else:
             missing_images.append(x["asset"]["name"])
 
-    print("Attempted %g json imports, found %g images, imported %g annotations successfully" % (i, n1, n2))
+    print(f"Attempted {i:g} json imports, found {n1:g} images, imported {n2:g} annotations successfully")
     if len(missing_images):
         print("WARNING, missing images:", missing_images)
 
@@ -203,7 +203,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
                                 ]  # xywh (left-top to center x-y)
 
                                 if box[2] > 0.0 and box[3] > 0.0:  # if w > 0 and h > 0
-                                    file.write("%g %.6f %.6f %.6f %.6f\n" % (category_id, *box))
+                                    file.write("{:g} {:.6f} {:.6f} {:.6f} {:.6f}\n".format(category_id, *box))
                                     n3 += 1
                                     nlabels += 1
 
@@ -224,7 +224,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
                         ifile = dir + "images/" + Path(f).name
                         if cv2.imwrite(ifile, img):  # if success append image to list
                             with open(dir + "data.txt", "a") as file:
-                                file.write("%s\n" % ifile)
+                                file.write(f"{ifile}\n")
                             n2 += 1  # correct images
 
                     except Exception:
@@ -236,8 +236,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
 
     nm = len(missing_images)  # number missing
     print(
-        "\nFound %g JSONs with %g labels over %g images. Found %g images, labelled %g images successfully"
-        % (len(jsons), n3, n1, n1 - nm, n2)
+        f"\nFound {len(jsons):g} JSONs with {n3:g} labels over {n1:g} images. Found {n1 - nm:g} images, labelled {n2:g} images successfully"
     )
     if len(missing_images):
         print("WARNING, missing images:", missing_images)
@@ -245,7 +244,7 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
     # Write *.names file
     names = ["knife"]  # preserves sort order
     with open(dir + "data.names", "w") as f:
-        [f.write("%s\n" % a) for a in names]
+        [f.write(f"{a}\n") for a in names]
 
     # Split data into train, test, and validate files
     split_rows_simple(dir + "data.txt")
@@ -266,7 +265,7 @@ def convert_coco_json(json_dir="../coco/annotations/", use_segments=False, cls91
             data = json.load(f)
 
         # Create image dict
-        images = {"%g" % x["id"]: x for x in data["images"]}
+        images = {"{:g}".format(x["id"]): x for x in data["images"]}
         # Create image-annotations dict
         imgToAnns = defaultdict(list)
         for ann in data["annotations"]:
@@ -274,7 +273,7 @@ def convert_coco_json(json_dir="../coco/annotations/", use_segments=False, cls91
 
         # Write labels file
         for img_id, anns in tqdm(imgToAnns.items(), desc=f"Annotations {json_file}"):
-            img = images["%g" % img_id]
+            img = images[f"{img_id:g}"]
             h, w, f = img["height"], img["width"], img["file_name"]
 
             bboxes = []
