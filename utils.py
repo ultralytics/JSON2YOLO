@@ -133,7 +133,7 @@ def create_single_class_dataset(path="../data/sm3"):  # from utils import *; cre
     os.system(f"mkdir {path}_1cls")
 
 
-def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils import *; flatten_recursive_folders()
+def flatten_recursive_folders(path="../../Downloads/data/sm4/"):    # from utils import *; flatten_recursive_folders()
     """Flattens nested folders in 'path/images' and 'path/json' into single 'images_flat' and 'json_flat'
     directories.
     """
@@ -153,7 +153,7 @@ def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils i
             stem, suffix = f.stem, f.suffix
             if suffix.lower()[1:] in img_formats:
                 n += 1
-                stem_new = f"{n:g}_" + stem
+                stem_new = f"{n:g}_{stem}"
                 image_new = nidir / (stem_new + suffix)  # converts all formats to *.jpg
                 json_new = njdir / f"{stem_new}.json"
 
@@ -162,7 +162,7 @@ def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils i
 
                 os.system(f"cp '{json}' '{json_new}'")
                 os.system(f"cp '{image}' '{image_new}'")
-                # cv2.imwrite(str(image_new), cv2.imread(str(image)))
+                            # cv2.imwrite(str(image_new), cv2.imread(str(image)))
 
     print(f"Flattening complete: {n:g} jsons and images")
 
