@@ -153,7 +153,7 @@ def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils i
             stem, suffix = f.stem, f.suffix
             if suffix.lower()[1:] in img_formats:
                 n += 1
-                stem_new = f"{n:g}_" + stem
+                stem_new = f"{n:g}_{stem}"
                 image_new = nidir / (stem_new + suffix)  # converts all formats to *.jpg
                 json_new = njdir / f"{stem_new}.json"
 
