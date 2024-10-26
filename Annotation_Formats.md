@@ -1,6 +1,6 @@
-## INFOLKS JSON Format
-
 **Below we will list each of the formats and their corresponding JSON formats**
+
+## INFOLKS Annotation Format
 
 Source: Email reply from folks at INFOLKS
 ```
@@ -111,7 +111,7 @@ Source: Email reply from folks at INFOLKS
 }
 ```
 
-## VOTT JSON FORMAT
+## VOTT Annotation FORMAT
 Source:  https://roboflow.com/formats/vott-json
 
 ```
@@ -165,7 +165,7 @@ Source:  https://roboflow.com/formats/vott-json
 }
 ```
 
-## COCO FORMAT
+## COCO Annotation FORMAT
 Source: https://roboflow.com/formats/coco-json
 
 ```
@@ -251,6 +251,7 @@ Source: https://roboflow.com/formats/coco-json
 ```
 
 ## YOLO FORMAT
+- YOLO uses .txt file, one for each image. One row for one label
 
 Source: https://roboflow.com/formats/yolo-darknet-txt
 
