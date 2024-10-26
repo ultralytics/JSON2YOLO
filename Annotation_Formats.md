@@ -3,6 +3,7 @@
 ## INFOLKS Annotation Format
 
 Source: Email reply from folks at INFOLKS
+
 ```
 {
     "path": "Sample_1.png",
@@ -112,7 +113,8 @@ Source: Email reply from folks at INFOLKS
 ```
 
 ## VOTT Annotation FORMAT
-Source:  https://roboflow.com/formats/vott-json
+
+Source: https://roboflow.com/formats/vott-json
 
 ```
 {
@@ -166,6 +168,7 @@ Source:  https://roboflow.com/formats/vott-json
 ```
 
 ## COCO Annotation FORMAT
+
 Source: https://roboflow.com/formats/coco-json
 
 ```
@@ -251,6 +254,7 @@ Source: https://roboflow.com/formats/coco-json
 ```
 
 ## YOLO FORMAT
+
 - YOLO uses .txt file, one for each image. One row for one label
 
 Source: https://roboflow.com/formats/yolo-darknet-txt
@@ -258,23 +262,24 @@ Source: https://roboflow.com/formats/yolo-darknet-txt
 Below, we can see the structure of YOLO Darknet TXT.
 
 Each image has one txt file with a single line for each bounding box. The format of each row is:
+
 ```
 class_id center_x center_y width height
 ```
-FileName: ```img0001.txt```
+
+FileName: `img0001.txt`
 File Contents:
+
 ```
 1 0.408 0.30266666666666664 0.104 0.15733333333333333
 1 0.245 0.424 0.046 0.08
 ```
-FileName: ```darknet.labels```
+
+FileName: `darknet.labels`
 File Contents:
+
 ```
 head
 helmet
 person
 ```
-
-
-
-
