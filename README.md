@@ -4,7 +4,7 @@
 
 Welcome to the [JSON2YOLO](https://github.com/ultralytics/JSON2YOLO) repository! This toolkit is designed to help you convert datasets in [JSON](https://www.ultralytics.com/glossary/json) format, particularly those following the [COCO (Common Objects in Context)](https://cocodataset.org/#home) standards, into the [YOLO format](https://docs.ultralytics.com/datasets/#yolo-format). The YOLO format is widely recognized for its efficiency in [real-time](https://www.ultralytics.com/glossary/real-time-inference) [object detection](https://docs.ultralytics.com/tasks/detect/) tasks.
 
-This conversion process is essential for [machine learning](https://www.ultralytics.com/glossary/machine-learning-ml) practitioners looking to train object detection models using frameworks compatible with the YOLO format, such as [Ultralytics YOLO](https://docs.ultralytics.com/models/yolo/). Our code is flexible and designed to run across various platforms including Linux, macOS, and Windows.
+This conversion process is essential for [machine learning](https://www.ultralytics.com/glossary/machine-learning-ml) practitioners looking to train object detection models using frameworks compatible with the YOLO format, such as [Ultralytics YOLO](https://docs.ultralytics.com/models/yolo11/). Our code is flexible and designed to run across various platforms including Linux, macOS, and Windows.
 
 [![Ultralytics Actions](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml/badge.svg)](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml)
 [![Ultralytics Discord](https://img.shields.io/discord/1089800235347353640?logo=discord&logoColor=white&label=Discord&color=blue)](https://discord.com/invite/ultralytics)
