@@ -28,8 +28,8 @@ To convert your COCO JSON dataset to YOLO format, run the `convert.py` script fr
 python convert.py --json_dir path/to/coco/annotations --save_dir path/to/yolo/labels
 ```
 
--   `--json_dir`: Path to the directory containing COCO JSON annotation files (e.g., `instances_train2017.json`).
--   `--save_dir`: Path to the directory where the converted YOLO label files (`.txt`) will be saved.
+- `--json_dir`: Path to the directory containing COCO JSON annotation files (e.g., `instances_train2017.json`).
+- `--save_dir`: Path to the directory where the converted YOLO label files (`.txt`) will be saved.
 
 This script will process the JSON files, extract bounding box information, and convert it into the YOLO format, saving one `.txt` file per image in the specified save directory. For more details on [dataset formats](https://docs.ultralytics.com/datasets/), refer to our documentation.
 
@@ -49,8 +49,8 @@ We welcome contributions from the community! Whether you're fixing bugs, adding 
 
 Ultralytics offers two licensing options to accommodate diverse needs:
 
--   **AGPL-3.0 License**: Ideal for students and enthusiasts, this [OSI-approved](https://opensource.org/license/agpl-v3) open-source license promotes collaboration and knowledge sharing. See the [LICENSE](https://github.com/ultralytics/ultralytics/blob/main/LICENSE) file for details.
--   **Enterprise License**: Designed for commercial use, this license permits seamless integration of Ultralytics software and AI models into commercial products and services, bypassing the open-source requirements of AGPL-3.0. For commercial inquiries, please contact us through [Ultralytics Licensing](https://www.ultralytics.com/license).
+- **AGPL-3.0 License**: Ideal for students and enthusiasts, this [OSI-approved](https://opensource.org/license/agpl-v3) open-source license promotes collaboration and knowledge sharing. See the [LICENSE](https://github.com/ultralytics/ultralytics/blob/main/LICENSE) file for details.
+- **Enterprise License**: Designed for commercial use, this license permits seamless integration of Ultralytics software and AI models into commercial products and services, bypassing the open-source requirements of AGPL-3.0. For commercial inquiries, please contact us through [Ultralytics Licensing](https://www.ultralytics.com/license).
 
 ## 📬 Contact Us
 
