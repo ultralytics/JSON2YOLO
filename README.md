@@ -12,7 +12,7 @@ This conversion process is essential for [machine learning](https://www.ultralyt
 [![Ultralytics Reddit](https://img.shields.io/reddit/subreddit-subscribers/ultralytics?style=flat&logo=reddit&logoColor=white&label=Reddit&color=blue)](https://reddit.com/r/ultralytics)
 
 > **⚠️ Disclaimer**: This project has been moved and embedded in the ultralytics main package. The standalone converter scripts in this repository are deprecated. The documentation of the new package can be seen at the documentation of the new
-`convert_coco()` in the [Ultralytics data converter reference documentation](https://docs.ultralytics.com/reference/data/converter/). 
+> `convert_coco()` in the [Ultralytics data converter reference documentation](https://docs.ultralytics.com/reference/data/converter/).
 
 ## ⚙️ Requirements
 
@@ -30,7 +30,7 @@ This package has become part of the ultralytics python package. Therefore the co
 from ultralytics.data.converter import convert_coco
 
 convert_coco(
-    labels_dir="<path/to/labels.json>", 
+    labels_dir="<path/to/labels.json>",
     save_dir="<path/to/output_dir>",
     use_keypoints=True,
 )
