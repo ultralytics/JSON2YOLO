@@ -11,6 +11,9 @@ This conversion process is essential for [machine learning](https://www.ultralyt
 [![Ultralytics Forums](https://img.shields.io/discourse/users?server=https%3A%2F%2Fcommunity.ultralytics.com&logo=discourse&label=Forums&color=blue)](https://community.ultralytics.com/)
 [![Ultralytics Reddit](https://img.shields.io/reddit/subreddit-subscribers/ultralytics?style=flat&logo=reddit&logoColor=white&label=Reddit&color=blue)](https://reddit.com/r/ultralytics)
 
+> **⚠️ Disclaimer**: This project has been moved and embedded in the ultralytics main package. The standalone converter scripts in this repository are deprecated. The documentation of the new package can be seen at the documentation of the new
+`convert_coco()` in the [Ultralytics data converter reference documentation](https://docs.ultralytics.com/reference/data/converter/). 
+
 ## ⚙️ Requirements
 
 To get started with JSON2YOLO, you'll need a [Python](https://www.python.org/) environment running version 3.8 or later. Additionally, you'll need to install all the necessary dependencies listed in the `requirements.txt` file. You can install these dependencies using the following [pip](https://pip.pypa.io/en/stable/) command in your terminal:
@@ -21,17 +24,19 @@ pip install -r requirements.txt # Installs all the required packages
 
 ## 💡 Usage
 
-To convert your COCO JSON dataset to YOLO format, run the `convert.py` script from your terminal. You need to specify the path to the directory containing your COCO JSON annotation files and the directory where you want to save the resulting YOLO label files.
+This package has become part of the ultralytics python package. Therefore the conversion can be done with the `coco_convert` method. An example of keypoint annotated labels looks like this:
 
-```bash
-# Example usage: Convert COCO annotations to YOLO format
-python convert.py --json_dir path/to/coco/annotations --save_dir path/to/yolo/labels
+```python
+from ultralytics.data.converter import convert_coco
+
+convert_coco(
+    labels_dir="<path/to/labels.json>", 
+    save_dir="<path/to/output.txt>",
+    use_keypoints=True,
+)
 ```
 
-- `--json_dir`: Path to the directory containing COCO JSON annotation files (e.g., `instances_train2017.json`).
-- `--save_dir`: Path to the directory where the converted YOLO label files (`.txt`) will be saved.
-
-This script will process the JSON files, extract bounding box information, and convert it into the YOLO format, saving one `.txt` file per image in the specified save directory. For more details on [dataset formats](https://docs.ultralytics.com/datasets/), refer to our documentation.
+This method will process the JSON files, extract bounding box information, and convert it into the YOLO format, saving one `.txt` file per image in the specified save directory. For more details on [dataset formats](https://docs.ultralytics.com/datasets/), refer to our documentation.
 
 ## 📚 Citation
 
