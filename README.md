@@ -31,7 +31,7 @@ from ultralytics.data.converter import convert_coco
 
 convert_coco(
     labels_dir="<path/to/labels.json>", 
-    save_dir="<path/to/output.txt>",
+    save_dir="<path/to/output_dir>",
     use_keypoints=True,
 )
 ```
