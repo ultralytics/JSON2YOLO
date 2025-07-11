@@ -1,7 +1,7 @@
 # pip install -r requirements.txt
 
 numpy
-opencv-python>=4.1.2
+opencv-python>=4.6.0
 pandas
 Pillow
 pyYAML
