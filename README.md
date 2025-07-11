@@ -23,19 +23,26 @@ pip install -r requirements.txt # Installs all the required packages
 
 ## 💡 Usage
 
-This package has become part of the ultralytics python package. Therefore the conversion can be done with the `coco_convert` method. An example of keypoint annotated labels looks like this:
+JSON2YOLO functionality is now part of the main `ultralytics` Python package. To use the converter, first install the package:
+
+```bash
+pip install ultralytics
+```
+
+You can then easily convert COCO JSON datasets to YOLO format using the `convert_coco` method. Here's an example using keypoint annotations:
 
 ```python
 from ultralytics.data.converter import convert_coco
 
 convert_coco(
-    labels_dir="<path/to/labels.json>",
-    save_dir="<path/to/output_dir>",
+    labels_dir="path/to/labels.json",
+    save_dir="path/to/output_dir",
     use_keypoints=True,
 )
 ```
 
-This method will process the JSON files, extract bounding box information, and convert it into the YOLO format, saving one `.txt` file per image in the specified save directory. For more details on [dataset formats](https://docs.ultralytics.com/datasets/), refer to our documentation.
+This method processes your JSON file, converts annotations (bounding boxes and keypoints), and saves the labels in YOLO format (`.txt` files) within the specified directory. For more details, refer to our [dataset format documentation](https://docs.ultralytics.com/datasets/).
+
 
 ## 📚 Citation
 
