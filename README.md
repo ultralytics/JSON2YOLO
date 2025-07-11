@@ -11,8 +11,7 @@ This conversion process is essential for [machine learning](https://www.ultralyt
 [![Ultralytics Forums](https://img.shields.io/discourse/users?server=https%3A%2F%2Fcommunity.ultralytics.com&logo=discourse&label=Forums&color=blue)](https://community.ultralytics.com/)
 [![Ultralytics Reddit](https://img.shields.io/reddit/subreddit-subscribers/ultralytics?style=flat&logo=reddit&logoColor=white&label=Reddit&color=blue)](https://reddit.com/r/ultralytics)
 
-> **⚠️ Disclaimer**: This project has been moved and embedded in the ultralytics main package. The standalone converter scripts in this repository are deprecated. The documentation of the new package can be seen at the documentation of the new
-> `convert_coco()` in the [Ultralytics data converter reference documentation](https://docs.ultralytics.com/reference/data/converter/).
+> **📢 Important Update**: The JSON2YOLO project is now integrated into the main Ultralytics package. The standalone scripts in this repository are no longer being actively updated. For the latest functionality, please use the new `convert_coco()` method described in our updated [data converter documentation](https://docs.ultralytics.com/reference/data/converter/).
 
 ## ⚙️ Requirements
 
