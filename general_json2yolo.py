@@ -7,6 +7,7 @@ from pathlib import Path
 
 import cv2
 import pandas as pd
+import yaml
 from PIL import Image
 
 from utils import *
@@ -266,6 +267,7 @@ def convert_coco_json(json_dir="../coco/annotations/", use_segments=False, use_k
         fn.mkdir()
         with open(json_file) as f:
             data = json.load(f)
+        write_coco_yaml(Path(save_dir) / f"{json_file.stem}.yaml", data, coco80, cls91to80)
 
         # Create image dict
         images = {"{:g}".format(x["id"]): x for x in data["images"]}
@@ -360,6 +362,18 @@ def rle2polygon(segmentation):
     m[m > 0] = 255
     contours, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
     return [cv2.approxPolyDP(c, 0.001 * cv2.arcLength(c, True), True).flatten().tolist() for c in contours]
+
+
+def write_coco_yaml(file, data, coco80, cls91to80):
+    """Writes class id-to-name metadata from COCO categories."""
+    names = {}
+    for category in data.get("categories", []):
+        class_id = coco80[category["id"] - 1] if cls91to80 else category["id"] - 1
+        if class_id is not None:
+            names[int(class_id)] = category["name"]
+    if names:
+        with open(file, "w") as f:
+            yaml.safe_dump({"names": dict(sorted(names.items()))}, f, sort_keys=False)
 
 
 def min_index(arr1, arr2):
