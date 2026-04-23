@@ -11,7 +11,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from general_json2yolo import convert_coco_json, convert_labelme_json
+from general_json2yolo import convert_coco_json, convert_labelme_json, convert_vott_json
 from labelbox_json2yolo import load_labelbox_json
 
 
@@ -134,3 +134,25 @@ def test_load_labelbox_ndjson(tmp_path):
     file.write_text('{"External ID": "a.jpg"}\n{"External ID": "b.jpg"}\n')
 
     assert load_labelbox_json(file) == [{"External ID": "a.jpg"}, {"External ID": "b.jpg"}]
+
+
+def test_vott_conversion_uses_path_outputs(tmp_path):
+    images = tmp_path / "images"
+    images.mkdir()
+    Image.new("RGB", (200, 100)).save(images / "image1.jpg")
+    json_file = tmp_path / "vott.json"
+    json_file.write_text(
+        json.dumps(
+            {
+                "asset": {"name": "image1"},
+                "regions": [
+                    {"tags": ["cat"], "boundingBox": {"left": 10, "top": 20, "width": 40, "height": 30}}
+                ],
+            }
+        )
+    )
+
+    save_dir = tmp_path / "out"
+    convert_vott_json("data", str(tmp_path / "*.json"), f"{images}/", save_dir=save_dir)
+
+    assert (save_dir / "labels" / "image1.txt").read_text().strip() == "0 0.150000 0.350000 0.200000 0.300000"
