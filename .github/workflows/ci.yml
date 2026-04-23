@@ -3,6 +3,8 @@
 name: CI
 
 on:
+  schedule:
+    - cron: "0 8 * * *"
   pull_request:
     branches: [main]
   push:
