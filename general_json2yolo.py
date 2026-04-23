@@ -244,7 +244,7 @@ def convert_ath_json(json_dir, save_dir="new_dir"):  # dir contains json annotat
 
     nm = len(missing_images)  # number missing
     print(
-        f"\nFound {len(jsons):g} JSONs with {n3:g} labels over {n1:g} images. Found {n1 - nm:g} images, labelled {n2:g} images successfully"
+        f"\nFound {len(jsons):g} JSONs with {n3:g} labels over {n1:g} images. Found {n1 - nm:g} images, labeled {n2:g} images successfully"
     )
     if len(missing_images):
         print("WARNING, missing images:", missing_images)
@@ -313,7 +313,7 @@ def convert_coco_json(
                 cls = coco80[ann["category_id"] - 1] if cls91to80 else ann["category_id"] - 1  # class
                 if cls is None:
                     continue
-                box = [cls] + box.tolist()
+                box = [cls, *box.tolist()]
                 if box not in bboxes:
                     bboxes.append(box)
                 else:
@@ -331,7 +331,7 @@ def convert_coco_json(
                         s = (np.array(s).reshape(-1, 2) / np.array([w, h])).reshape(-1).tolist()
                     else:
                         s = []
-                    segments.append([cls] + s if s else [])
+                    segments.append([cls, *s] if s else [])
                 if use_keypoints:
                     keypoints.append(box + coco_keypoints(ann, w, h))
 
@@ -340,13 +340,7 @@ def convert_coco_json(
             label_file.parent.mkdir(parents=True, exist_ok=True)
             with open(label_file, "a") as file:
                 for i in range(len(bboxes)):
-                    line = (
-                        keypoints[i]
-                        if use_keypoints
-                        else segments[i]
-                        if use_segments and segments[i]
-                        else bboxes[i]
-                    )
+                    line = keypoints[i] if use_keypoints else segments[i] if use_segments and segments[i] else bboxes[i]
                     line = tuple(line)
                     file.write(("%g " * len(line)).rstrip() % line + "\n")
     return save_dir
@@ -385,12 +379,12 @@ def convert_labelme_json(json_dir, use_segments=True, save_dir="new_dir"):
             shape_type = shape.get("shape_type", "polygon")
             segment = yolo_segment(points, width, height)
             if use_segments and shape_type in {"polygon", "linestrip"} and segment:
-                line = [cls] + segment
+                line = [cls, *segment]
             else:
                 box = yolo_bbox(points, width, height)
                 if not box:
                     continue
-                line = [cls] + box
+                line = [cls, *box]
             lines.append(("%g " * len(line)).rstrip() % tuple(line))
 
         if lines:
@@ -517,14 +511,13 @@ def coco_names(data, coco80, cls91to80):
 
 
 def min_index(arr1, arr2):
-    """
-    Find a pair of indexes with the shortest distance.
+    """Find a pair of indexes with the shortest distance.
 
     Args:
         arr1: (N, 2).
         arr2: (M, 2).
 
-    Return:
+    Returns:
         a pair of indexes(tuple).
     """
     dis = ((arr1[:, None, :] - arr2[None, :, :]) ** 2).sum(-1)
@@ -532,14 +525,12 @@ def min_index(arr1, arr2):
 
 
 def merge_multi_segment(segments):
-    """
-    Merge multi segments to one list. Find the coordinates with min distance between each segment, then connect these
+    """Merge multi segments to one list. Find the coordinates with min distance between each segment, then connect these
     coordinates with one thin line to merge all segments into one.
 
     Args:
-        segments(List(List)): original segmentations in coco's json file.
-            like [segmentation1, segmentation2,...],
-            each segmentation is a list of coordinates.
+        segments(List(List)): original segmentations in coco's json file. like [segmentation1, segmentation2,...], each
+            segmentation is a list of coordinates.
     """
     s = []
     segments = [np.array(i).reshape(-1, 2) for i in segments]
