@@ -8,3 +8,4 @@ pycocotools
 pyYAML
 requests
 tqdm
+argparse
