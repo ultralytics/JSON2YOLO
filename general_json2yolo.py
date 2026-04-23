@@ -10,7 +10,6 @@ from collections import defaultdict
 from pathlib import Path
 
 import cv2
-import pandas as pd
 import yaml
 from PIL import Image
 
@@ -18,9 +17,9 @@ from utils import *
 
 
 # Convert INFOLKS JSON file into YOLO-format labels ----------------------------
-def convert_infolks_json(name, files, img_path):
+def convert_infolks_json(name, files, img_path, save_dir="new_dir"):
     """Converts INFOLKS JSON annotations to YOLO-format labels."""
-    path = make_dirs()
+    path = make_dirs(save_dir)
 
     # Import json
     data = []
@@ -31,7 +30,7 @@ def convert_infolks_json(name, files, img_path):
             data.append(jdata)
 
     # Write images and shapes
-    name = path + os.sep + name
+    name = path / name
     _file_id, file_name, wh, cat = [], [], [], []
     for x in tqdm(data, desc="Files and Shapes"):
         f = glob.glob(img_path + Path(x["json_file"]).stem + ".*")[0]
@@ -40,20 +39,20 @@ def convert_infolks_json(name, files, img_path):
         cat.extend(a["classTitle"].lower() for a in x["output"]["objects"])  # categories
 
         # filename
-        with open(name + ".txt", "a") as file:
+        with open(name.with_suffix(".txt"), "a") as file:
             file.write(f"{f}\n")
 
     # Write *.names file
     names = sorted(np.unique(cat))
     # names.pop(names.index('Missing product'))  # remove
-    with open(name + ".names", "a") as file:
+    with open(name.with_suffix(".names"), "a") as file:
         [file.write(f"{a}\n") for a in names]
 
     # Write labels file
     for i, x in enumerate(tqdm(data, desc="Annotations")):
         label_name = Path(file_name[i]).stem + ".txt"
 
-        with open(path + "/labels/" + label_name, "a") as file:
+        with open(path / "labels" / label_name, "a") as file:
             for a in x["output"]["objects"]:
                 # if a['classTitle'] == 'Missing product':
                 #    continue  # skip
@@ -70,15 +69,15 @@ def convert_infolks_json(name, files, img_path):
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
-    write_data_data(name + ".data", nc=len(names))
-    print(f"Done. Output saved to {os.getcwd() + os.sep + path}")
+    write_data_data(name.with_suffix(".data"), nc=len(names))
+    print(f"Done. Output saved to {path.absolute()}")
 
 
 # Convert vott JSON file into YOLO-format labels -------------------------------
-def convert_vott_json(name, files, img_path):
+def convert_vott_json(name, files, img_path, save_dir="new_dir"):
     """Converts VoTT JSON files to YOLO-format labels and organizes dataset structure."""
-    path = make_dirs()
-    name = path + os.sep + name
+    path = make_dirs(save_dir)
+    name = path / name
 
     # Import json
     data = []
@@ -95,8 +94,8 @@ def convert_vott_json(name, files, img_path):
             cat.extend(a["tags"][0] for a in x["regions"])  # categories
 
     # Write *.names file
-    names = sorted(pd.unique(cat))
-    with open(name + ".names", "a") as file:
+    names = sorted(set(cat))
+    with open(name.with_suffix(".names"), "a") as file:
         [file.write(f"{a}\n") for a in names]
 
     # Write labels file
@@ -114,18 +113,18 @@ def convert_vott_json(name, files, img_path):
                 n2 += 1
 
                 # append filename to list
-                with open(name + ".txt", "a") as file:
+                with open(name.with_suffix(".txt"), "a") as file:
                     file.write(f"{f}\n")
 
                 # write labelsfile
                 label_name = Path(f).stem + ".txt"
-                with open(path + "/labels/" + label_name, "a") as file:
+                with open(path / "labels" / label_name, "a") as file:
                     for a in x["regions"]:
                         category_id = names.index(a["tags"][0])
 
                         # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
                         box = a["boundingBox"]
-                        box = np.array([box["left"], box["top"], box["width"], box["height"]]).ravel()
+                        box = np.array([box["left"], box["top"], box["width"], box["height"]], dtype=np.float32).ravel()
                         box[[0, 2]] /= wh[0]  # normalize x by width
                         box[[1, 3]] /= wh[1]  # normalize y by height
                         box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2], box[3]]  # xywh
@@ -141,7 +140,7 @@ def convert_vott_json(name, files, img_path):
 
     # Split data into train, test, and validate files
     split_files(name, file_name)
-    print(f"Done. Output saved to {os.getcwd() + os.sep + path}")
+    print(f"Done. Output saved to {path.absolute()}")
 
 
 # Convert ath JSON file into YOLO-format labels --------------------------------
@@ -184,7 +183,7 @@ def convert_ath_json(json_dir, save_dir="new_dir"):  # dir contains json annotat
 
                 n1 += 1  # all images
                 if len(f) > 0 and wh[0] > 0 and wh[1] > 0:
-                    label_file = dir + "labels/" + Path(f).stem + ".txt"
+                    label_file = dir / "labels" / f"{Path(f).stem}.txt"
 
                     nlabels = 0
                     try:
@@ -216,8 +215,7 @@ def convert_ath_json(json_dir, save_dir="new_dir"):  # dir contains json annotat
                                     nlabels += 1
 
                         if nlabels == 0:  # remove non-labelled images from dataset
-                            os.system(f"rm {label_file}")
-                            # print('no labels for %s' % f)
+                            label_file.unlink(missing_ok=True)
                             continue  # next file
 
                         # write image
@@ -229,14 +227,14 @@ def convert_ath_json(json_dir, save_dir="new_dir"):  # dir contains json annotat
                             h, w, _ = img.shape
                             img = cv2.resize(img, (int(w * r), int(h * r)), interpolation=cv2.INTER_AREA)
 
-                        ifile = dir + "images/" + Path(f).name
-                        if cv2.imwrite(ifile, img):  # if success append image to list
-                            with open(dir + "data.txt", "a") as file:
+                        ifile = dir / "images" / Path(f).name
+                        if cv2.imwrite(str(ifile), img):  # if success append image to list
+                            with open(dir / "data.txt", "a") as file:
                                 file.write(f"{ifile}\n")
                             n2 += 1  # correct images
 
                     except Exception:
-                        os.system(f"rm {label_file}")
+                        label_file.unlink(missing_ok=True)
                         print(f"problem with {f}")
 
             else:
@@ -251,12 +249,12 @@ def convert_ath_json(json_dir, save_dir="new_dir"):  # dir contains json annotat
 
     # Write *.names file
     names = ["knife"]  # preserves sort order
-    with open(dir + "data.names", "w") as f:
+    with open(dir / "data.names", "w") as f:
         [f.write(f"{a}\n") for a in names]
 
     # Split data into train, test, and validate files
-    split_rows_simple(dir + "data.txt")
-    write_data_data(dir + "data.data", nc=1)
+    split_rows_simple(dir / "data.txt")
+    write_data_data(dir / "data.data", nc=1)
     print(f"Done. Output saved to {Path(dir).absolute()}")
 
 
@@ -621,9 +619,9 @@ if __name__ == "__main__":
     elif args.source == "LabelMe":
         convert_labelme_json(args.json_dir, args.use_segments, args.save_dir)
     elif args.source == "infolks":
-        convert_infolks_json(name=args.name, files=args.files, img_path=args.img_path)
+        convert_infolks_json(name=args.name, files=args.files, img_path=args.img_path, save_dir=args.save_dir)
     elif args.source == "vott":
-        convert_vott_json(name=args.name, files=args.files, img_path=args.img_path)
+        convert_vott_json(name=args.name, files=args.files, img_path=args.img_path, save_dir=args.save_dir)
     elif args.source == "ath":
         convert_ath_json(json_dir=args.json_dir, save_dir=args.save_dir)
 
