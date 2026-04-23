@@ -4,6 +4,7 @@ numpy
 opencv-python>=4.6.0
 pandas
 Pillow
+pycocotools
 pyYAML
 requests
 tqdm

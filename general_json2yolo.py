@@ -3,6 +3,7 @@
 import contextlib
 import json
 from collections import defaultdict
+from pathlib import Path
 
 import cv2
 import pandas as pd
@@ -254,8 +255,8 @@ def convert_ath_json(json_dir):  # dir contains json annotations and images
     print(f"Done. Output saved to {Path(dir).absolute()}")
 
 
-def convert_coco_json(json_dir="../coco/annotations/", use_segments=False, cls91to80=False):
-    """Converts COCO JSON format to YOLO label format, with options for segments and class mapping."""
+def convert_coco_json(json_dir="../coco/annotations/", use_segments=False, use_keypoints=False, cls91to80=False):
+    """Converts COCO JSON format to YOLO label format, with options for segments, keypoints, and class mapping."""
     save_dir = make_dirs()  # output directory
     coco80 = coco91_to_coco80_class()
 
@@ -280,11 +281,12 @@ def convert_coco_json(json_dir="../coco/annotations/", use_segments=False, cls91
 
             bboxes = []
             segments = []
+            keypoints = []
             for ann in anns:
-                if ann["iscrowd"]:
+                if ann.get("iscrowd", False):
                     continue
                 # The COCO box format is [top left x, top left y, width, height]
-                box = np.array(ann["bbox"], dtype=np.float64)
+                box = np.array(ann.get("bbox") or bbox_from_keypoints(ann), dtype=np.float64)
                 box[:2] += box[2:] / 2  # xy top-left corner to center
                 box[[0, 2]] /= w  # normalize x
                 box[[1, 3]] /= h  # normalize y
@@ -292,26 +294,72 @@ def convert_coco_json(json_dir="../coco/annotations/", use_segments=False, cls91
                     continue
 
                 cls = coco80[ann["category_id"] - 1] if cls91to80 else ann["category_id"] - 1  # class
+                if cls is None:
+                    continue
                 box = [cls] + box.tolist()
                 if box not in bboxes:
                     bboxes.append(box)
+                else:
+                    continue
                 # Segments
                 if use_segments:
-                    if len(ann["segmentation"]) > 1:
-                        s = merge_multi_segment(ann["segmentation"])
+                    segmentation = ann.get("segmentation", [])
+                    if isinstance(segmentation, dict):
+                        segmentation = rle2polygon(segmentation)
+                    if len(segmentation) > 1:
+                        s = merge_multi_segment(segmentation)
                         s = (np.concatenate(s, axis=0) / np.array([w, h])).reshape(-1).tolist()
-                    else:
-                        s = [j for i in ann["segmentation"] for j in i]  # all segments concatenated
+                    elif len(segmentation) == 1:
+                        s = [j for i in segmentation for j in i]  # all segments concatenated
                         s = (np.array(s).reshape(-1, 2) / np.array([w, h])).reshape(-1).tolist()
-                    s = [cls] + s
-                    if s not in segments:
-                        segments.append(s)
+                    else:
+                        s = []
+                    segments.append([cls] + s if s else [])
+                if use_keypoints:
+                    keypoints.append(box + coco_keypoints(ann, w, h))
 
             # Write
-            with open((fn / f).with_suffix(".txt"), "a") as file:
+            label_file = (fn / Path(f).name if Path(f).is_absolute() else fn / f).with_suffix(".txt")
+            label_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(label_file, "a") as file:
                 for i in range(len(bboxes)):
-                    line = (*(segments[i] if use_segments else bboxes[i]),)  # cls, box or segments
+                    line = (
+                        keypoints[i]
+                        if use_keypoints
+                        else segments[i]
+                        if use_segments and segments[i]
+                        else bboxes[i]
+                    )
+                    line = tuple(line)
                     file.write(("%g " * len(line)).rstrip() % line + "\n")
+
+
+def bbox_from_keypoints(ann):
+    """Creates a COCO xywh box from visible keypoints when bbox is missing."""
+    keypoints = np.array(ann.get("keypoints", []), dtype=np.float64).reshape(-1, 3)
+    visible = keypoints[keypoints[:, 2] > 0]
+    if not len(visible):
+        return [0, 0, 0, 0]
+    x, y = visible[:, 0], visible[:, 1]
+    return [x.min(), y.min(), x.max() - x.min(), y.max() - y.min()]
+
+
+def coco_keypoints(ann, width, height):
+    """Normalizes COCO keypoints to YOLO pose format."""
+    keypoints = ann.get("keypoints", [])
+    return (np.array(keypoints, dtype=np.float64).reshape(-1, 3) / np.array([width, height, 1])).reshape(-1).tolist()
+
+
+def rle2polygon(segmentation):
+    """Converts COCO RLE segmentation to polygon segments."""
+    from pycocotools import mask
+
+    if isinstance(segmentation["counts"], list):
+        segmentation = mask.frPyObjects(segmentation, *segmentation["size"])
+    m = mask.decode(segmentation)
+    m[m > 0] = 255
+    contours, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_KCOS)
+    return [cv2.approxPolyDP(c, 0.001 * cv2.arcLength(c, True), True).flatten().tolist() for c in contours]
 
 
 def min_index(arr1, arr2):
