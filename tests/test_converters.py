@@ -145,9 +145,7 @@ def test_vott_conversion_uses_path_outputs(tmp_path):
         json.dumps(
             {
                 "asset": {"name": "image1"},
-                "regions": [
-                    {"tags": ["cat"], "boundingBox": {"left": 10, "top": 20, "width": 40, "height": 30}}
-                ],
+                "regions": [{"tags": ["cat"], "boundingBox": {"left": 10, "top": 20, "width": 40, "height": 30}}],
             }
         )
     )
