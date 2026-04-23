@@ -23,30 +23,54 @@ pip install -r requirements.txt # Installs all the required packages
 
 ## 💡 Usage
 
-JSON2YOLO functionality is now part of the main `ultralytics` Python package. To use the converter, first install the package:
+JSON2YOLO functionality is now part of the main `ultralytics` Python package. For new projects, install `ultralytics` and use the maintained converter:
 
 ```bash
 pip install ultralytics
 ```
 
-You can then easily convert COCO JSON datasets to YOLO format using the `convert_coco` method. Here's an example using keypoint annotations:
-
 ```python
 from ultralytics.data.converter import convert_coco
 
 convert_coco(
-    labels_dir="path/to/labels.json",
+    labels_dir="path/to/annotations",
     save_dir="path/to/output_dir",
+    use_segments=False,
     use_keypoints=True,
 )
 ```
 
-This method processes your JSON file, converts annotations (bounding boxes and keypoints), and saves the labels in YOLO format (`.txt` files) within the specified directory. For more details, refer to our [dataset format documentation](https://docs.ultralytics.com/datasets/).
+This method processes COCO detection, segmentation, and keypoint annotations and saves YOLO labels in the specified directory. For more details, refer to the [dataset format documentation](https://docs.ultralytics.com/datasets/).
 
 Legacy standalone script usage is still available for existing workflows:
 
 ```bash
-python general_json2yolo.py --source COCO --json-dir path/to/annotations --use-segments
+python general_json2yolo.py --source COCO --json-dir path/to/annotations --save-dir yolo_out
+python general_json2yolo.py --source COCO --json-dir path/to/annotations --use-segments --save-dir yolo_seg
+python general_json2yolo.py --source COCO --json-dir path/to/annotations --use-keypoints --save-dir yolo_pose
+```
+
+The standalone converter also supports LabelMe polygon, rectangle, circle, linestrip, and mask annotations:
+
+```bash
+python general_json2yolo.py --source LabelMe --json-dir path/to/labelme_jsons --use-segments --save-dir yolo_labelme
+```
+
+Notes:
+
+- COCO input should be a directory containing `*.json` files with standard `images`, `annotations`, and `categories` keys.
+- LabelMe input should be a directory containing one JSON file per image.
+- `--save-dir` controls the output directory and is deleted/recreated on each run.
+- Image files are copied for LabelMe when `imagePath` points to an existing local file next to the JSON.
+- Labelbox exports can be JSON lists or newline-delimited JSON. Bounding-box objects are converted; mask-only objects are skipped with a warning.
+
+The output follows the Ultralytics YOLO dataset layout:
+
+```text
+yolo_out/
+├── data.yaml
+├── images/
+└── labels/
 ```
 
 ## 📚 Citation
