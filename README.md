@@ -43,6 +43,12 @@ convert_coco(
 
 This method processes your JSON file, converts annotations (bounding boxes and keypoints), and saves the labels in YOLO format (`.txt` files) within the specified directory. For more details, refer to our [dataset format documentation](https://docs.ultralytics.com/datasets/).
 
+Legacy standalone script usage is still available for existing workflows:
+
+```bash
+python general_json2yolo.py --source COCO --json-dir path/to/annotations --use-segments
+```
+
 ## 📚 Citation
 
 If you find our tool useful for your research or development, please consider citing it:

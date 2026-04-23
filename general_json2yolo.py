@@ -1,5 +1,6 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
+import argparse
 import contextlib
 import json
 from collections import defaultdict
@@ -450,28 +451,30 @@ def delete_dsstore(path="../datasets"):
         f.unlink()
 
 
+def parse_args():
+    """Parses command-line arguments for legacy standalone conversion."""
+    parser = argparse.ArgumentParser(description="Convert JSON annotations to YOLO labels.")
+    parser.add_argument("--source", default="COCO", choices=["COCO", "infolks", "vott", "ath"], help="Input format.")
+    parser.add_argument("--json-dir", default="../datasets/coco/annotations", help="Directory containing JSON files.")
+    parser.add_argument("--use-segments", action="store_true", help="Export COCO segmentation labels.")
+    parser.add_argument("--use-keypoints", action="store_true", help="Export COCO keypoint labels.")
+    parser.add_argument("--cls91to80", action="store_true", help="Map COCO 91-category ids to 80-category ids.")
+    parser.add_argument("--name", default="out", help="Output stem for INFOLKS and VoTT text files.")
+    parser.add_argument("--files", default="../data/sm4/json/*.json", help="Input JSON glob for INFOLKS and VoTT.")
+    parser.add_argument("--img-path", default="../data/sm4/images/", help="Image directory for INFOLKS and VoTT.")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    source = "COCO"
-
-    if source == "COCO":
-        convert_coco_json(
-            "../datasets/coco/annotations",  # directory with *.json
-            use_segments=True,
-            cls91to80=True,
-        )
-
-    elif source == "infolks":  # Infolks https://infolks.info/
-        convert_infolks_json(name="out", files="../data/sm4/json/*.json", img_path="../data/sm4/images/")
-
-    elif source == "vott":  # VoTT https://github.com/microsoft/VoTT
-        convert_vott_json(
-            name="data",
-            files="../../Downloads/athena_day/20190715/*.json",
-            img_path="../../Downloads/athena_day/20190715/",
-        )  # images folder
-
-    elif source == "ath":  # ath format
-        convert_ath_json(json_dir="../../Downloads/athena/")  # images folder
+    args = parse_args()
+    if args.source == "COCO":
+        convert_coco_json(args.json_dir, args.use_segments, args.use_keypoints, args.cls91to80)
+    elif args.source == "infolks":
+        convert_infolks_json(name=args.name, files=args.files, img_path=args.img_path)
+    elif args.source == "vott":
+        convert_vott_json(name=args.name, files=args.files, img_path=args.img_path)
+    elif args.source == "ath":
+        convert_ath_json(json_dir=args.json_dir)
 
     # zip results
     # os.system('zip -r ../coco.zip ../coco')
