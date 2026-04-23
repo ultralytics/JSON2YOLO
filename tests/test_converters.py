@@ -1,10 +1,13 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
+import base64
+import io
 import json
 import sys
 from pathlib import Path
 
 import yaml
+from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -91,6 +94,39 @@ def test_labelme_conversion_writes_segments_boxes_and_yaml(tmp_path):
     assert lines[1] == "1 0.5 0.2 0.2 0.2"
     assert (save_dir / "images" / "images" / "image1.jpg").exists()
     assert yaml.safe_load((save_dir / "data.yaml").read_text())["names"] == {0: "lane", 1: "sign"}
+
+
+def test_labelme_conversion_sanitizes_paths_and_exports_masks_as_segments(tmp_path):
+    mask = Image.new("L", (20, 20), 0)
+    for x in range(5, 15):
+        for y in range(5, 15):
+            mask.putpixel((x, y), 255)
+    buffer = io.BytesIO()
+    mask.save(buffer, format="PNG")
+
+    (tmp_path / "ann.json").write_text(
+        json.dumps(
+            {
+                "imagePath": "../escape.jpg",
+                "imageHeight": 20,
+                "imageWidth": 20,
+                "shapes": [
+                    {
+                        "label": "food",
+                        "shape_type": "mask",
+                        "points": [[0, 0], [20, 20]],
+                        "mask": base64.b64encode(buffer.getvalue()).decode(),
+                    }
+                ],
+            }
+        )
+    )
+
+    save_dir = convert_labelme_json(tmp_path, use_segments=True, save_dir=tmp_path / "out")
+
+    label = (save_dir / "labels" / "escape.txt").read_text().strip().split()
+    assert len(label) > 5
+    assert not (tmp_path / "escape.txt").exists()
 
 
 def test_load_labelbox_ndjson(tmp_path):

@@ -280,7 +280,6 @@ def convert_coco_json(
             print(f"WARNING: Skipping {json_file}, expected COCO keys 'images' and 'annotations'.")
             continue
         write_coco_yaml(Path(save_dir) / f"{json_file.stem}.yaml", data, coco80, cls91to80)
-        write_dataset_yaml(Path(save_dir) / "data.yaml", coco_names(data, coco80, cls91to80))
 
         # Create image dict
         images = {"{:g}".format(x["id"]): x for x in data["images"]}
@@ -364,7 +363,9 @@ def convert_labelme_json(json_dir, use_segments=True, save_dir="new_dir"):
             continue
 
         image_name = data.get("imagePath") or json_file.with_suffix(".jpg").name
-        label_file = (save_dir / "labels" / Path(image_name)).with_suffix(".txt")
+        image_file = labelme_image_file(json_file, image_name)
+        output_name = safe_relative_path(image_name, json_file.with_suffix(".jpg").name)
+        label_file = (save_dir / "labels" / output_name).with_suffix(".txt")
         label_file.parent.mkdir(parents=True, exist_ok=True)
         lines = []
         for shape in data.get("shapes", []):
@@ -378,7 +379,7 @@ def convert_labelme_json(json_dir, use_segments=True, save_dir="new_dir"):
 
             shape_type = shape.get("shape_type", "polygon")
             segment = yolo_segment(points, width, height)
-            if use_segments and shape_type in {"polygon", "linestrip"} and segment:
+            if use_segments and shape_type in {"polygon", "linestrip", "mask"} and segment:
                 line = [cls, *segment]
             else:
                 box = yolo_bbox(points, width, height)
@@ -391,15 +392,30 @@ def convert_labelme_json(json_dir, use_segments=True, save_dir="new_dir"):
             label_file.write_text("\n".join(lines) + "\n")
             converted += 1
 
-        image_file = json_file.parent / image_name
         if image_file.exists():
-            output_image = save_dir / "images" / Path(image_name)
+            output_image = save_dir / "images" / output_name
             output_image.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(image_file, output_image)
 
     write_dataset_yaml(save_dir / "data.yaml", names)
     print(f"Done. Converted {converted:g}/{len(json_files):g} LabelMe JSON files to {save_dir}")
     return save_dir
+
+
+def safe_relative_path(path, fallback):
+    """Returns a safe relative path for writing inside an output directory."""
+    raw = str(path or fallback).replace("\\", "/")
+    path = Path(raw)
+    if path.is_absolute() or ".." in path.parts:
+        return Path(path.name or fallback)
+    parts = [part for part in path.parts if part not in {"", "."}]
+    return Path(*parts) if parts else Path(fallback)
+
+
+def labelme_image_file(json_file, image_name):
+    """Returns the local image path referenced by a LabelMe JSON file."""
+    path = Path(str(image_name).replace("\\", "/"))
+    return path if path.is_absolute() else json_file.parent / path
 
 
 def labelme_points(shape, width, height):
