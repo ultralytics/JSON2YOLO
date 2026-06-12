@@ -3,17 +3,28 @@
 import argparse
 import base64
 import contextlib
+import glob
 import io
 import json
+import os
 import shutil
 from collections import defaultdict
 from pathlib import Path
 
 import cv2
+import numpy as np
 import yaml
 from PIL import Image
+from tqdm import tqdm
 
-from utils import *
+from utils import (
+    coco91_to_coco80_class,
+    exif_size,
+    make_dirs,
+    split_files,
+    split_rows_simple,
+    write_data_data,
+)
 
 
 # Convert INFOLKS JSON file into YOLO-format labels ----------------------------
@@ -63,7 +74,12 @@ def convert_infolks_json(name, files, img_path, save_dir="new_dir"):
                 box = np.array(a["points"]["exterior"], dtype=np.float32).ravel()
                 box[[0, 2]] /= wh[i][0]  # normalize x by width
                 box[[1, 3]] /= wh[i][1]  # normalize y by height
-                box = [box[[0, 2]].mean(), box[[1, 3]].mean(), box[2] - box[0], box[3] - box[1]]  # xywh
+                box = [
+                    box[[0, 2]].mean(),
+                    box[[1, 3]].mean(),
+                    box[2] - box[0],
+                    box[3] - box[1],
+                ]  # xywh
                 if (box[2] > 0.0) and (box[3] > 0.0):  # if w > 0 and h > 0
                     file.write("{:g} {:.6f} {:.6f} {:.6f} {:.6f}\n".format(category_id, *box))
 
@@ -124,10 +140,18 @@ def convert_vott_json(name, files, img_path, save_dir="new_dir"):
 
                         # The INFOLKS bounding box format is [x-min, y-min, x-max, y-max]
                         box = a["boundingBox"]
-                        box = np.array([box["left"], box["top"], box["width"], box["height"]], dtype=np.float32).ravel()
+                        box = np.array(
+                            [box["left"], box["top"], box["width"], box["height"]],
+                            dtype=np.float32,
+                        ).ravel()
                         box[[0, 2]] /= wh[0]  # normalize x by width
                         box[[1, 3]] /= wh[1]  # normalize y by height
-                        box = [box[0] + box[2] / 2, box[1] + box[3] / 2, box[2], box[3]]  # xywh
+                        box = [
+                            box[0] + box[2] / 2,
+                            box[1] + box[3] / 2,
+                            box[2],
+                            box[3],
+                        ]  # xywh
 
                         if (box[2] > 0.0) and (box[3] > 0.0):  # if w > 0 and h > 0
                             file.write("{:g} {:.6f} {:.6f} {:.6f} {:.6f}\n".format(category_id, *box))
@@ -198,7 +222,8 @@ def convert_ath_json(json_dir, save_dir="new_dir"):  # dir contains json annotat
                                 # bounding box format is [x-min, y-min, x-max, y-max]
                                 box = a["shape_attributes"]
                                 box = np.array(
-                                    [box["x"], box["y"], box["width"], box["height"]], dtype=np.float32
+                                    [box["x"], box["y"], box["width"], box["height"]],
+                                    dtype=np.float32,
                                 ).ravel()
                                 box[[0, 2]] /= wh[0]  # normalize x by width
                                 box[[1, 3]] /= wh[1]  # normalize y by height
@@ -225,7 +250,11 @@ def convert_ath_json(json_dir, save_dir="new_dir"):  # dir contains json annotat
                         r = img_size / max(img.shape)  # size ratio
                         if r < 1:  # downsize if necessary
                             h, w, _ = img.shape
-                            img = cv2.resize(img, (int(w * r), int(h * r)), interpolation=cv2.INTER_AREA)
+                            img = cv2.resize(
+                                img,
+                                (int(w * r), int(h * r)),
+                                interpolation=cv2.INTER_AREA,
+                            )
 
                         ifile = dir / "images" / Path(f).name
                         if cv2.imwrite(str(ifile), img):  # if success append image to list
@@ -259,7 +288,11 @@ def convert_ath_json(json_dir, save_dir="new_dir"):  # dir contains json annotat
 
 
 def convert_coco_json(
-    json_dir="../coco/annotations/", use_segments=False, use_keypoints=False, cls91to80=False, save_dir="new_dir"
+    json_dir="../coco/annotations/",
+    use_segments=False,
+    use_keypoints=False,
+    cls91to80=False,
+    save_dir="new_dir",
 ):
     """Converts COCO JSON format to YOLO label format, with options for segments, keypoints, and class mapping."""
     save_dir = make_dirs(save_dir)  # output directory
@@ -424,7 +457,10 @@ def labelme_points(shape, width, height):
         if mask_points:
             return mask_points
     if shape.get("shape_type") == "circle" and len(points) >= 2:
-        center, edge = np.array(points[0], dtype=np.float64), np.array(points[1], dtype=np.float64)
+        center, edge = (
+            np.array(points[0], dtype=np.float64),
+            np.array(points[1], dtype=np.float64),
+        )
         r = np.linalg.norm(edge - center)
         return [[center[0] - r, center[1] - r], [center[0] + r, center[1] + r]]
     return points
@@ -472,7 +508,12 @@ def write_dataset_yaml(file, names):
     names = names if isinstance(names, dict) else dict(enumerate(names))
     with open(file, "w") as f:
         yaml.safe_dump(
-            {"path": str(file.parent), "train": "images", "val": "images", "names": names},
+            {
+                "path": str(file.parent),
+                "train": "images",
+                "val": "images",
+                "names": names,
+            },
             f,
             sort_keys=False,
         )
@@ -599,29 +640,64 @@ def parse_args():
     """Parses command-line arguments for legacy standalone conversion."""
     parser = argparse.ArgumentParser(description="Convert JSON annotations to YOLO labels.")
     parser.add_argument(
-        "--source", default="COCO", choices=["COCO", "LabelMe", "infolks", "vott", "ath"], help="Input format."
+        "--source",
+        default="COCO",
+        choices=["COCO", "LabelMe", "infolks", "vott", "ath"],
+        help="Input format.",
     )
-    parser.add_argument("--json-dir", default="../datasets/coco/annotations", help="Directory containing JSON files.")
+    parser.add_argument(
+        "--json-dir",
+        default="../datasets/coco/annotations",
+        help="Directory containing JSON files.",
+    )
     parser.add_argument("--save-dir", default="new_dir", help="Output directory.")
     parser.add_argument("--use-segments", action="store_true", help="Export COCO segmentation labels.")
     parser.add_argument("--use-keypoints", action="store_true", help="Export COCO keypoint labels.")
-    parser.add_argument("--cls91to80", action="store_true", help="Map COCO 91-category ids to 80-category ids.")
+    parser.add_argument(
+        "--cls91to80",
+        action="store_true",
+        help="Map COCO 91-category ids to 80-category ids.",
+    )
     parser.add_argument("--name", default="out", help="Output stem for INFOLKS and VoTT text files.")
-    parser.add_argument("--files", default="../data/sm4/json/*.json", help="Input JSON glob for INFOLKS and VoTT.")
-    parser.add_argument("--img-path", default="../data/sm4/images/", help="Image directory for INFOLKS and VoTT.")
+    parser.add_argument(
+        "--files",
+        default="../data/sm4/json/*.json",
+        help="Input JSON glob for INFOLKS and VoTT.",
+    )
+    parser.add_argument(
+        "--img-path",
+        default="../data/sm4/images/",
+        help="Image directory for INFOLKS and VoTT.",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
     if args.source == "COCO":
-        convert_coco_json(args.json_dir, args.use_segments, args.use_keypoints, args.cls91to80, args.save_dir)
+        convert_coco_json(
+            args.json_dir,
+            args.use_segments,
+            args.use_keypoints,
+            args.cls91to80,
+            args.save_dir,
+        )
     elif args.source == "LabelMe":
         convert_labelme_json(args.json_dir, args.use_segments, args.save_dir)
     elif args.source == "infolks":
-        convert_infolks_json(name=args.name, files=args.files, img_path=args.img_path, save_dir=args.save_dir)
+        convert_infolks_json(
+            name=args.name,
+            files=args.files,
+            img_path=args.img_path,
+            save_dir=args.save_dir,
+        )
     elif args.source == "vott":
-        convert_vott_json(name=args.name, files=args.files, img_path=args.img_path, save_dir=args.save_dir)
+        convert_vott_json(
+            name=args.name,
+            files=args.files,
+            img_path=args.img_path,
+            save_dir=args.save_dir,
+        )
     elif args.source == "ath":
         convert_ath_json(json_dir=args.json_dir, save_dir=args.save_dir)
 

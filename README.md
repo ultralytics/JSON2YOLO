@@ -2,16 +2,16 @@
 
 # 🚀 Introduction
 
-Welcome to the [JSON2YOLO](https://github.com/ultralytics/JSON2YOLO) repository! This toolkit is designed to help you convert datasets in [JSON](https://www.ultralytics.com/glossary/json) format, particularly those following the [COCO (Common Objects in Context)](https://cocodataset.org/#home) standards, into the [YOLO format](https://docs.ultralytics.com/datasets/#yolo-format). The YOLO format is widely recognized for its efficiency in [real-time](https://www.ultralytics.com/glossary/real-time-inference) [object detection](https://docs.ultralytics.com/tasks/detect/) tasks.
+Welcome to the [JSON2YOLO](https://github.com/ultralytics/JSON2YOLO) repository! This toolkit is designed to help you convert datasets in [JSON](https://www.ultralytics.com/glossary/json) format, particularly those following the [COCO (Common Objects in Context)](https://cocodataset.org/#home) standards, into the [YOLO format](https://docs.ultralytics.com/datasets#yolo-format). The YOLO format is widely recognized for its efficiency in [real-time](https://www.ultralytics.com/glossary/real-time-inference) [object detection](https://docs.ultralytics.com/tasks/detect) tasks.
 
-This conversion process is essential for [machine learning](https://www.ultralytics.com/glossary/machine-learning-ml) practitioners looking to train object detection models using frameworks compatible with the YOLO format, such as [Ultralytics YOLO](https://docs.ultralytics.com/models/yolo11/). Our code is flexible and designed to run across various platforms including Linux, macOS, and Windows.
+This conversion process is essential for [machine learning](https://www.ultralytics.com/glossary/machine-learning-ml) practitioners looking to train object detection models using frameworks compatible with the YOLO format, such as [Ultralytics YOLO](https://docs.ultralytics.com/models/yolo11). Our code is flexible and designed to run across various platforms including Linux, macOS, and Windows.
 
 [![Ultralytics Actions](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml/badge.svg)](https://github.com/ultralytics/JSON2YOLO/actions/workflows/format.yml)
 [![Ultralytics Discord](https://img.shields.io/discord/1089800235347353640?logo=discord&logoColor=white&label=Discord&color=blue)](https://discord.com/invite/ultralytics)
 [![Ultralytics Forums](https://img.shields.io/discourse/users?server=https%3A%2F%2Fcommunity.ultralytics.com&logo=discourse&label=Forums&color=blue)](https://community.ultralytics.com/)
 [![Ultralytics Reddit](https://img.shields.io/reddit/subreddit-subscribers/ultralytics?style=flat&logo=reddit&logoColor=white&label=Reddit&color=blue)](https://reddit.com/r/ultralytics)
 
-> **📢 Important Update**: The JSON2YOLO project is now integrated into the main Ultralytics package at https://github.com/ultralytics/ultralytics. The standalone scripts in this repository are no longer being actively updated. For the latest functionality, please use the new `convert_coco()` method described in our updated [data converter documentation](https://docs.ultralytics.com/reference/data/converter/).
+> **📢 Important Update**: The JSON2YOLO project is now integrated into the main Ultralytics package at https://github.com/ultralytics/ultralytics. The standalone scripts in this repository are no longer being actively updated. For the latest functionality, please use the new `convert_coco()` method described in our updated [data converter documentation](https://docs.ultralytics.com/reference/data/converter).
 
 ## ⚙️ Requirements
 
@@ -40,7 +40,7 @@ convert_coco(
 )
 ```
 
-This method processes COCO detection, segmentation, and keypoint annotations and saves YOLO labels in the specified directory. For more details, refer to the [dataset format documentation](https://docs.ultralytics.com/datasets/).
+This method processes COCO detection, segmentation, and keypoint annotations and saves YOLO labels in the specified directory. For more details, refer to the [dataset format documentation](https://docs.ultralytics.com/datasets).
 
 Legacy standalone script usage is still available for existing workflows:
 
@@ -81,7 +81,7 @@ If you find our tool useful for your research or development, please consider ci
 
 ## 🤝 Contribute
 
-We welcome contributions from the community! Whether you're fixing bugs, adding new features, or improving documentation, your input is invaluable. Take a look at our [Contributing Guide](https://docs.ultralytics.com/help/contributing/) to get started. Also, we'd love to hear about your experience with Ultralytics products. Please consider filling out our [Survey](https://www.ultralytics.com/survey?utm_source=github&utm_medium=social&utm_campaign=Survey). A huge 🙏 and thank you to all of our contributors!
+We welcome contributions from the community! Whether you're fixing bugs, adding new features, or improving documentation, your input is invaluable. Take a look at our [Contributing Guide](https://docs.ultralytics.com/help/contributing) to get started. Also, we'd love to hear about your experience with Ultralytics products. Please consider filling out our [Survey](https://www.ultralytics.com/survey?utm_source=github&utm_medium=social&utm_campaign=Survey). A huge 🙏 and thank you to all of our contributors!
 
 [![Ultralytics open-source contributors](https://raw.githubusercontent.com/ultralytics/assets/main/im/image-contributors.png)](https://github.com/ultralytics/JSON2YOLO/graphs/contributors)
 
@@ -89,7 +89,7 @@ We welcome contributions from the community! Whether you're fixing bugs, adding 
 
 Ultralytics offers two licensing options to accommodate diverse needs:
 
-- **AGPL-3.0 License**: Ideal for students and enthusiasts, this [OSI-approved](https://opensource.org/license/agpl-v3) open-source license promotes collaboration and knowledge sharing. See the [LICENSE](https://github.com/ultralytics/JSON2YOLO/blob/main/LICENSE) file for details.
+- **AGPL-3.0 License**: Ideal for students and enthusiasts, this [OSI-approved](https://opensource.org/license/agpl-3.0) open-source license promotes collaboration and knowledge sharing. See the [LICENSE](https://github.com/ultralytics/JSON2YOLO/blob/main/LICENSE) file for details.
 - **Enterprise License**: Designed for commercial use, this license permits seamless integration of Ultralytics software and AI models into commercial products and services, bypassing the open-source requirements of AGPL-3.0. For commercial inquiries, please contact us through [Ultralytics Licensing](https://www.ultralytics.com/license).
 
 ## 📬 Contact Us

@@ -35,7 +35,12 @@ def convert(file, zip=True):
                 continue
             # box
             top, left, h, w = label["bbox"].values()  # top, left, height, width
-            xywh = [(left + w / 2) / width, (top + h / 2) / height, w / width, h / height]  # xywh normalized
+            xywh = [
+                (left + w / 2) / width,
+                (top + h / 2) / height,
+                w / width,
+                h / height,
+            ]  # xywh normalized
 
             # class
             cls = label["value"]  # class name

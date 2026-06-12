@@ -16,12 +16,20 @@ from labelbox_json2yolo import load_labelbox_json
 
 
 def test_coco_conversion_writes_nested_labels_and_yaml(tmp_path):
+    """Verify COCO conversion preserves nested label paths and class metadata."""
     annotations = tmp_path / "annotations"
     annotations.mkdir()
     (annotations / "instances_train.json").write_text(
         json.dumps(
             {
-                "images": [{"id": 1, "height": 100, "width": 200, "file_name": "nested/image1.jpg"}],
+                "images": [
+                    {
+                        "id": 1,
+                        "height": 100,
+                        "width": 200,
+                        "file_name": "nested/image1.jpg",
+                    }
+                ],
                 "categories": [{"id": 1, "name": "person"}],
                 "annotations": [
                     {
@@ -44,6 +52,7 @@ def test_coco_conversion_writes_nested_labels_and_yaml(tmp_path):
 
 
 def test_coco_conversion_writes_keypoints(tmp_path):
+    """Verify COCO keypoint annotations are converted to YOLO pose labels."""
     annotations = tmp_path / "annotations"
     annotations.mkdir()
     (annotations / "person_keypoints_val.json").write_text(
@@ -66,10 +75,23 @@ def test_coco_conversion_writes_keypoints(tmp_path):
     save_dir = convert_coco_json(annotations, use_keypoints=True, save_dir=tmp_path / "out")
 
     label = (save_dir / "labels" / "person_keypoints_val" / "image1.txt").read_text().strip().split()
-    assert label == ["0", "0.15", "0.4", "0.1", "0.2", "0.1", "0.3", "2", "0.2", "0.5", "2"]
+    assert label == [
+        "0",
+        "0.15",
+        "0.4",
+        "0.1",
+        "0.2",
+        "0.1",
+        "0.3",
+        "2",
+        "0.2",
+        "0.5",
+        "2",
+    ]
 
 
 def test_labelme_conversion_writes_segments_boxes_and_yaml(tmp_path):
+    """Verify LabelMe shapes write segment, box, image, and YAML outputs."""
     image = tmp_path / "images" / "image1.jpg"
     image.parent.mkdir()
     image.write_bytes(b"fake image bytes")
@@ -80,8 +102,16 @@ def test_labelme_conversion_writes_segments_boxes_and_yaml(tmp_path):
                 "imageHeight": 100,
                 "imageWidth": 200,
                 "shapes": [
-                    {"label": "lane", "shape_type": "polygon", "points": [[10, 20], [50, 20], [50, 60]]},
-                    {"label": "sign", "shape_type": "rectangle", "points": [[80, 10], [120, 30]]},
+                    {
+                        "label": "lane",
+                        "shape_type": "polygon",
+                        "points": [[10, 20], [50, 20], [50, 60]],
+                    },
+                    {
+                        "label": "sign",
+                        "shape_type": "rectangle",
+                        "points": [[80, 10], [120, 30]],
+                    },
                 ],
             }
         )
@@ -93,10 +123,14 @@ def test_labelme_conversion_writes_segments_boxes_and_yaml(tmp_path):
     assert lines[0] == "0 0.05 0.2 0.25 0.2 0.25 0.6"
     assert lines[1] == "1 0.5 0.2 0.2 0.2"
     assert (save_dir / "images" / "images" / "image1.jpg").exists()
-    assert yaml.safe_load((save_dir / "data.yaml").read_text())["names"] == {0: "lane", 1: "sign"}
+    assert yaml.safe_load((save_dir / "data.yaml").read_text())["names"] == {
+        0: "lane",
+        1: "sign",
+    }
 
 
 def test_labelme_conversion_sanitizes_paths_and_exports_masks_as_segments(tmp_path):
+    """Verify LabelMe output paths stay safe and mask shapes become segments."""
     mask = Image.new("L", (20, 20), 0)
     for x in range(5, 15):
         for y in range(5, 15):
@@ -130,13 +164,18 @@ def test_labelme_conversion_sanitizes_paths_and_exports_masks_as_segments(tmp_pa
 
 
 def test_load_labelbox_ndjson(tmp_path):
+    """Verify Labelbox newline-delimited JSON exports load as records."""
     file = tmp_path / "labelbox.json"
     file.write_text('{"External ID": "a.jpg"}\n{"External ID": "b.jpg"}\n')
 
-    assert load_labelbox_json(file) == [{"External ID": "a.jpg"}, {"External ID": "b.jpg"}]
+    assert load_labelbox_json(file) == [
+        {"External ID": "a.jpg"},
+        {"External ID": "b.jpg"},
+    ]
 
 
 def test_vott_conversion_uses_path_outputs(tmp_path):
+    """Verify VoTT conversion writes labels under the requested output path."""
     images = tmp_path / "images"
     images.mkdir()
     Image.new("RGB", (200, 100)).save(images / "image1.jpg")
@@ -145,7 +184,17 @@ def test_vott_conversion_uses_path_outputs(tmp_path):
         json.dumps(
             {
                 "asset": {"name": "image1"},
-                "regions": [{"tags": ["cat"], "boundingBox": {"left": 10, "top": 20, "width": 40, "height": 30}}],
+                "regions": [
+                    {
+                        "tags": ["cat"],
+                        "boundingBox": {
+                            "left": 10,
+                            "top": 20,
+                            "width": 40,
+                            "height": 30,
+                        },
+                    }
+                ],
             }
         )
     )

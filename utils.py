@@ -10,8 +10,25 @@ from PIL import ExifTags
 from tqdm import tqdm
 
 # Parameters
-img_formats = ["bmp", "jpg", "jpeg", "png", "tif", "tiff", "dng"]  # acceptable image suffixes
-vid_formats = ["mov", "avi", "mp4", "mpg", "mpeg", "m4v", "wmv", "mkv"]  # acceptable video suffixes
+img_formats = [
+    "bmp",
+    "jpg",
+    "jpeg",
+    "png",
+    "tif",
+    "tiff",
+    "dng",
+]  # acceptable image suffixes
+vid_formats = [
+    "mov",
+    "avi",
+    "mp4",
+    "mpg",
+    "mpeg",
+    "m4v",
+    "wmv",
+    "mkv",
+]  # acceptable video suffixes
 
 # Get orientation exif tag
 for orientation in ExifTags.TAGS.keys():
@@ -32,7 +49,9 @@ def exif_size(img):
     return s
 
 
-def split_rows_simple(file="../data/sm4/out.txt"):  # from utils import *; split_rows_simple()
+def split_rows_simple(
+    file="../data/sm4/out.txt",
+):  # from utils import *; split_rows_simple()
     """Splits a text file into train, test, and val files based on specified ratios; expects a file path as input."""
     with open(file) as f:
         lines = f.readlines()
@@ -102,8 +121,8 @@ def image_folder2file(folder="images/"):  # from utils import *; image_folder2fi
     """Generates a txt file listing all images in a specified folder; usage: `image_folder2file('path/to/folder/')`."""
     s = glob.glob(f"{folder}*.*")
     with open(f"{folder[:-1]}.txt", "w") as file:
-        for l in s:
-            file.write(l + "\n")  # write image list
+        for image in s:
+            file.write(image + "\n")  # write image list
 
 
 def add_coco_background(path="../data/sm4/", n=1000):  # from utils import *; add_coco_background()
@@ -129,12 +148,16 @@ def add_coco_background(path="../data/sm4/", n=1000):  # from utils import *; ad
     split_rows_simple(file=fb)
 
 
-def create_single_class_dataset(path="../data/sm3"):  # from utils import *; create_single_class_dataset('../data/sm3/')
+def create_single_class_dataset(
+    path="../data/sm3",
+):  # from utils import *; create_single_class_dataset('../data/sm3/')
     """Creates a single-class version of an existing dataset in the specified path."""
     os.system(f"mkdir {path}_1cls")
 
 
-def flatten_recursive_folders(path="../../Downloads/data/sm4/"):  # from utils import *; flatten_recursive_folders()
+def flatten_recursive_folders(
+    path="../../Downloads/data/sm4/",
+):  # from utils import *; flatten_recursive_folders()
     """Flattens nested folders in 'path/images' and 'path/json' into single 'images_flat' and 'json_flat' directories.
     """
     idir, _jdir = f"{path}images/", f"{path}json/"
