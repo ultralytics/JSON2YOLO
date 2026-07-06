@@ -158,8 +158,7 @@ def create_single_class_dataset(
 def flatten_recursive_folders(
     path="../../Downloads/data/sm4/",
 ):  # from utils import *; flatten_recursive_folders()
-    """Flattens nested folders in 'path/images' and 'path/json' into single 'images_flat' and 'json_flat' directories.
-    """
+    """Flattens nested folders in 'path/images' and 'path/json' into single 'images_flat' and 'json_flat' directories."""
     idir, _jdir = f"{path}images/", f"{path}json/"
     nidir, njdir = Path(f"{path}images_flat/"), Path(f"{path}json_flat/")
     n = 0
