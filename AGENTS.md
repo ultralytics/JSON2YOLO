@@ -36,10 +36,10 @@ After opening a PR:
 # Install dependencies (use uv, never bare `pip install`); CI also adds `pytest ultralytics` and `--system`
 uv pip install -r requirements.txt pytest
 
-# Byte-compile every file — CI's first gate, catches syntax errors before tests
+# Byte-compile every file — CI's first gate, catches syntax errors before tests (CI runs `uv run python -m compileall -q .`)
 python -m compileall -q .
 
-# Run all tests (exactly as ci.yml does)
+# Run all tests (CI runs `uv run pytest -q`)
 pytest -q
 
 # Single file / single test
@@ -66,5 +66,5 @@ JSON2YOLO is a small set of standalone scripts that convert third-party annotati
 
 - Every Python file starts with `# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license` — Ultralytics Actions adds headers automatically; don't add or revert them manually.
 - Google-style docstrings; the Actions bot runs Ruff, docformatter, prettier (YAML/JSON/Markdown), and codespell on PRs and its formatting can differ from local — expect bot commits on the branch, and `git pull --rebase` before pushing more.
-- Tests are offline and deterministic: build synthetic COCO/LabelMe/VoTT/Labelbox JSON with `tmp_path` and assert exact label strings — do not add tests that download weights or hit the network.
+- Tests are offline and deterministic: build synthetic COCO/LabelMe/VoTT JSON with `tmp_path` and assert exact label strings; Labelbox is covered only at the `load_labelbox_json` NDJSON-parse level, not full conversion — do not add tests that download weights or hit the network.
 - No package version and no release process — this is a script repo with no `__version__` to bump; there is nothing to publish.
