@@ -26,7 +26,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: ultralytics/actions/setup-uv@main
 
       - name: Install dependencies
         run: uv pip install --system -r requirements.txt pytest ultralytics
