@@ -31,7 +31,7 @@ vid_formats = [
 ]  # acceptable video suffixes
 
 # Get orientation exif tag
-for orientation in ExifTags.TAGS.keys():
+for orientation in ExifTags.TAGS:
     if ExifTags.TAGS[orientation] == "Orientation":
         break
 
@@ -57,7 +57,7 @@ def split_rows_simple(
         lines = f.readlines()
 
     s = Path(file).suffix
-    lines = sorted(list(filter(lambda x: len(x) > 0, lines)))
+    lines = sorted(filter(lambda x: len(x) > 0, lines))
     i, j, k = split_indices(lines, train=0.9, test=0.1, validate=0.0)
     for k, v in {"train": i, "test": j, "val": k}.items():  # key, value pairs
         if v.any():
@@ -121,8 +121,7 @@ def image_folder2file(folder="images/"):  # from utils import *; image_folder2fi
     """Generates a txt file listing all images in a specified folder; usage: `image_folder2file('path/to/folder/')`."""
     s = glob.glob(f"{folder}*.*")
     with open(f"{folder[:-1]}.txt", "w") as file:
-        for image in s:
-            file.write(image + "\n")  # write image list
+        file.writelines(image + "\n" for image in s)  # write image list
 
 
 def add_coco_background(path="../data/sm4/", n=1000):  # from utils import *; add_coco_background()
