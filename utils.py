@@ -58,12 +58,12 @@ def split_rows_simple(
 
     s = Path(file).suffix
     lines = sorted(filter(lambda x: len(x) > 0, lines))
-    i, j, k = split_indices(lines, train=0.9, test=0.1, validate=0.0)
-    for k, v in {"train": i, "test": j, "val": k}.items():  # key, value pairs
-        if v.any():
-            new_file = file.replace(s, f"_{k}{s}")
+    train_indices, test_indices, val_indices = split_indices(lines, train=0.9, test=0.1, validate=0.0)
+    for split, indices in {"train": train_indices, "test": test_indices, "val": val_indices}.items():
+        if indices.any():
+            new_file = file.replace(s, f"_{split}{s}")
             with open(new_file, "w") as f:
-                f.writelines([lines[i] for i in v])
+                f.writelines([lines[i] for i in indices])
 
 
 def split_files(out_path, file_name, prefix_path=""):  # split training data
