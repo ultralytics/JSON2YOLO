@@ -68,7 +68,7 @@ The output follows the Ultralytics YOLO dataset layout:
 
 ```text
 yolo_out/
-├── data.yaml
+├── data.yaml   # LabelMe only; COCO writes one <json-stem>.yaml of class names per input file
 ├── images/
 └── labels/
 ```
