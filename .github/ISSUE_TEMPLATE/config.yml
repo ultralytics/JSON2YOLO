@@ -1,0 +1,16 @@
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
+
+blank_issues_enabled: true
+contact_links:
+  - name: 📄 Ultralytics Docs
+    url: https://docs.ultralytics.com/datasets/
+    about: Ultralytics dataset format and converter documentation
+  - name: 💬 Forum
+    url: https://community.ultralytics.com/
+    about: Ask on Ultralytics Community Forum
+  - name: 🎧 Discord
+    url: https://ultralytics.com/discord
+    about: Ask on Ultralytics Discord
+  - name: ⌨️ Reddit
+    url: https://reddit.com/r/ultralytics
+    about: Ask on Ultralytics Subreddit
