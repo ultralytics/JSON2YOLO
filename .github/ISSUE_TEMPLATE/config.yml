@@ -3,10 +3,10 @@
 blank_issues_enabled: true
 contact_links:
   - name: 📄 Ultralytics Docs
-    url: https://docs.ultralytics.com/datasets/
+    url: https://docs.ultralytics.com/datasets
     about: Ultralytics dataset format and converter documentation
   - name: 💬 Forum
-    url: https://community.ultralytics.com/
+    url: https://community.ultralytics.com
     about: Ask on Ultralytics Community Forum
   - name: 🎧 Discord
     url: https://ultralytics.com/discord
