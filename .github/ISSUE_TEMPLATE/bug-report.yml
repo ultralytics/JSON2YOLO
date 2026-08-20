@@ -15,7 +15,7 @@ body:
     attributes:
       label: Search before asking
       description: >
-        Please search the [Ultralytics Docs](https://docs.ultralytics.com/datasets/) and [issues](https://github.com/ultralytics/JSON2YOLO/issues) to see if a similar bug report already exists.
+        Please search the [Ultralytics Docs](https://docs.ultralytics.com/datasets) and [issues](https://github.com/ultralytics/JSON2YOLO/issues) to see if a similar bug report already exists.
       options:
         - label: >
             I have searched the Ultralytics [issues](https://github.com/ultralytics/JSON2YOLO/issues) and found no similar bug report.
@@ -73,7 +73,7 @@ body:
     attributes:
       label: Minimal Reproducible Example
       description: >
-        When asking a question, people will be better able to provide help if you provide code that they can easily understand and use to **reproduce** the problem. This is referred to by community members as creating a [minimal reproducible example](https://docs.ultralytics.com/help/minimum-reproducible-example/).
+        When asking a question, people will be better able to provide help if you provide code that they can easily understand and use to **reproduce** the problem. This is referred to by community members as creating a [minimal reproducible example](https://docs.ultralytics.com/help/minimum-reproducible-example).
       placeholder: |
         ```python
         from general_json2yolo import convert_coco_json

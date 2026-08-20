@@ -15,7 +15,7 @@ body:
     attributes:
       label: Search before asking
       description: >
-        Please search the [Ultralytics Docs](https://docs.ultralytics.com/datasets/) and [issues](https://github.com/ultralytics/JSON2YOLO/issues) to see if a similar feature request already exists.
+        Please search the [Ultralytics Docs](https://docs.ultralytics.com/datasets) and [issues](https://github.com/ultralytics/JSON2YOLO/issues) to see if a similar feature request already exists.
       options:
         - label: >
             I have searched the Ultralytics [issues](https://github.com/ultralytics/JSON2YOLO/issues) and found no similar feature requests.
