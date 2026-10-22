@@ -315,15 +315,13 @@ def test_coco_cls91to80_conversion_and_yaml(tmp_path):
 
 
 def test_coco_output_precision_uses_g_format(tmp_path):
-    ann_dir = _write_coco(
-        tmp_path,
-        _coco_doc(
-            [{"id": 1, "image_id": 7, "category_id": 1, "bbox": [1, 1, 1, 1]}],
-            width=333,
-            height=333,
-        )
-        | {"images": [{"id": 7, "height": 333, "width": 333, "file_name": "im.jpg"}]},
+    doc = _coco_doc(
+        [{"id": 1, "image_id": 7, "category_id": 1, "bbox": [1, 1, 1, 1]}],
+        width=333,
+        height=333,
     )
+    doc["images"] = [{"id": 7, "height": 333, "width": 333, "file_name": "im.jpg"}]
+    ann_dir = _write_coco(tmp_path, doc)
     save_dir = convert_coco_json(ann_dir, save_dir=tmp_path / "out")
     # Center 1.5/333 and size 1/333, printed with %g (6 significant digits).
     assert (save_dir / "labels" / "train" / "im.txt").read_text().strip() == "0 0.0045045 0.0045045 0.003003 0.003003"
@@ -351,7 +349,9 @@ def test_coco_no_json_files_raises(tmp_path):
 
 
 def test_coco_segments_fall_back_to_bbox_without_segmentation(tmp_path):
-    ann_dir = _write_coco(tmp_path, _coco_doc([{"id": 1, "image_id": 1, "category_id": 1, "bbox": [10, 20, 40, 30]}]))
+    ann_dir = _write_coco(
+        tmp_path, _coco_doc([{"id": 1, "image_id": 1, "category_id": 1, "bbox": [10, 20, 40, 30]}])
+    )
     save_dir = convert_coco_json(ann_dir, use_segments=True, save_dir=tmp_path / "out")
     assert (save_dir / "labels" / "train" / "im.txt").read_text().strip() == "0 0.15 0.35 0.2 0.3"
 
@@ -434,9 +434,7 @@ def test_labelme_no_json_files_raises(tmp_path):
 
 
 def test_labelme_missing_dimensions_are_skipped(tmp_path, capsys):
-    (tmp_path / "a.json").write_text(
-        json.dumps({"imagePath": "a.jpg", "shapes": [{"label": "x", "points": [[0, 0], [1, 1]]}]})
-    )
+    (tmp_path / "a.json").write_text(json.dumps({"imagePath": "a.jpg", "shapes": [{"label": "x", "points": [[0, 0], [1, 1]]}]}))
     save_dir = convert_labelme_json(tmp_path, save_dir=tmp_path / "out")
     assert "missing imageWidth/imageHeight" in capsys.readouterr().out
     assert list((save_dir / "labels").rglob("*.txt")) == []
