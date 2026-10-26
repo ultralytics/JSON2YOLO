@@ -6,13 +6,20 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
 import yaml
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from general_json2yolo import convert_coco_json, convert_labelme_json, convert_vott_json
+from general_json2yolo import (
+    convert_ath_json,
+    convert_coco_json,
+    convert_labelme_json,
+    convert_vott_json,
+)
 from labelbox_json2yolo import load_labelbox_json
+from utils import exif_size, split_files, split_indices, split_rows_simple
 
 
 def test_coco_conversion_writes_nested_labels_and_yaml(tmp_path):
@@ -203,3 +210,46 @@ def test_vott_conversion_uses_path_outputs(tmp_path):
     convert_vott_json("data", str(tmp_path / "*.json"), f"{images}/", save_dir=save_dir)
 
     assert (save_dir / "labels" / "image1.txt").read_text().strip() == "0 0.150000 0.350000 0.200000 0.300000"
+
+
+def test_split_keeps_rounded_remainder_and_single_index(tmp_path):
+    train, test, val = split_indices(range(5), train=0.5, test=0.5, validate=0, shuffle=False)
+    assert [part.tolist() for part in (train, test, val)] == [[0, 1], [2, 3, 4], []]
+    split_files(str(tmp_path / "files"), ["image.jpg"])
+    assert (tmp_path / "files_train.txt").read_text() == "image.jpg\n"
+    source = tmp_path / "rows.txt"
+    source.write_text("image.jpg\n")
+    split_rows_simple(str(source))
+    assert (tmp_path / "rows_train.txt").read_text() == "image.jpg\n"
+
+
+def test_ath_conversion_writes_single_image_split(tmp_path):
+    source = tmp_path / "src"
+    source.mkdir()
+    Image.new("RGB", (200, 100)).save(source / "im1.jpg")
+    (source / "ann.json").write_text(
+        json.dumps(
+            {
+                "_via_img_metadata": {
+                    "k1": {
+                        "filename": "im1.jpg",
+                        "regions": [{"shape_attributes": {"x": 10, "y": 20, "width": 40, "height": 30}}],
+                    }
+                }
+            }
+        )
+    )
+    output = tmp_path / "out"
+    convert_ath_json(str(source), save_dir=output)
+    assert (output / "labels/im1.txt").read_text().strip() == "0 0.150000 0.350000 0.200000 0.300000"
+    assert (output / "data_train.txt").read_text().strip() == str(output / "images/im1.jpg")
+
+
+@pytest.mark.parametrize("orientation", [5, 6, 7, 8])
+def test_exif_size_accounts_for_transposed_images(tmp_path, orientation):
+    path = tmp_path / "image.jpg"
+    exif = Image.Exif()
+    exif[274] = orientation
+    Image.new("RGB", (200, 100)).save(path, exif=exif)
+    with Image.open(path) as image:
+        assert exif_size(image) == (100, 200)
