@@ -12,7 +12,12 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from general_json2yolo import convert_ath_json, convert_coco_json, convert_labelme_json, convert_vott_json
+from general_json2yolo import (
+    convert_ath_json,
+    convert_coco_json,
+    convert_labelme_json,
+    convert_vott_json,
+)
 from labelbox_json2yolo import load_labelbox_json
 from utils import exif_size, split_files, split_indices, split_rows_simple
 
