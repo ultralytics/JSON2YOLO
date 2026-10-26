@@ -41,7 +41,7 @@ def exif_size(img):
     s = img.size  # (width, height)
     try:
         rotation = dict(img._getexif().items())[orientation]
-        if rotation in [6, 8]:  # rotation 270
+        if rotation in [5, 6, 7, 8]:  # transpose or quarter-turn
             s = (s[1], s[0])
     except Exception:
         pass
@@ -60,7 +60,7 @@ def split_rows_simple(
     lines = sorted(filter(lambda x: len(x) > 0, lines))
     train_indices, test_indices, val_indices = split_indices(lines, train=0.9, test=0.1, validate=0.0)
     for split, indices in {"train": train_indices, "test": test_indices, "val": val_indices}.items():
-        if indices.any():
+        if indices.size:
             new_file = file.replace(s, f"_{split}{s}")
             with open(new_file, "w") as f:
                 f.writelines([lines[i] for i in indices])
@@ -73,7 +73,7 @@ def split_files(out_path, file_name, prefix_path=""):  # split training data
     i, j, k = split_indices(file_name, train=0.9, test=0.1, validate=0.0)
     datasets = {"train": i, "test": j, "val": k}
     for key, item in datasets.items():
-        if item.any():
+        if item.size:
             with open(f"{out_path}_{key}.txt", "a") as file:
                 for i in item:
                     file.write(f"{prefix_path}{file_name[i]}\n")
@@ -87,8 +87,8 @@ def split_indices(x, train=0.9, test=0.1, validate=0.0, shuffle=True):  # split 
         np.random.shuffle(v)
 
     i = round(n * train)  # train
-    j = round(n * test) + i  # test
-    k = round(n * validate) + j  # validate
+    j = round(n * (train + test))  # test
+    k = round(n * (train + test + validate))  # validate
     return v[:i], v[i:j], v[j:k]  # return indices
 
 
