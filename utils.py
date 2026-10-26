@@ -53,15 +53,15 @@ def split_rows_simple(
     file="../data/sm4/out.txt",
 ):  # from utils import *; split_rows_simple()
     """Splits a text file into train, test, and val files based on specified ratios; expects a file path as input."""
+    file = Path(file)
     with open(file) as f:
         lines = f.readlines()
 
-    s = Path(file).suffix
     lines = sorted(filter(lambda x: len(x) > 0, lines))
     train_indices, test_indices, val_indices = split_indices(lines, train=0.9, test=0.1, validate=0.0)
     for split, indices in {"train": train_indices, "test": test_indices, "val": val_indices}.items():
         if indices.size:
-            new_file = file.replace(s, f"_{split}{s}")
+            new_file = file.with_name(f"{file.stem}_{split}{file.suffix}")
             with open(new_file, "w") as f:
                 f.writelines([lines[i] for i in indices])
 

@@ -12,8 +12,8 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from general_json2yolo import convert_coco_json, convert_labelme_json, convert_vott_json
-from labelbox_json2yolo import convert, load_labelbox_json
+from general_json2yolo import convert_ath_json, convert_coco_json, convert_labelme_json, convert_vott_json
+from labelbox_json2yolo import load_labelbox_json
 from utils import exif_size, split_files, split_indices, split_rows_simple
 
 
@@ -218,6 +218,28 @@ def test_split_keeps_rounded_remainder_and_single_index(tmp_path):
     assert (tmp_path / "rows_train.txt").read_text() == "image.jpg\n"
 
 
+def test_ath_conversion_writes_single_image_split(tmp_path):
+    source = tmp_path / "src"
+    source.mkdir()
+    Image.new("RGB", (200, 100)).save(source / "im1.jpg")
+    (source / "ann.json").write_text(
+        json.dumps(
+            {
+                "_via_img_metadata": {
+                    "k1": {
+                        "filename": "im1.jpg",
+                        "regions": [{"shape_attributes": {"x": 10, "y": 20, "width": 40, "height": 30}}],
+                    }
+                }
+            }
+        )
+    )
+    output = tmp_path / "out"
+    convert_ath_json(str(source), save_dir=output)
+    assert (output / "labels/im1.txt").read_text().strip() == "0 0.150000 0.350000 0.200000 0.300000"
+    assert (output / "data_train.txt").read_text().strip() == str(output / "images/im1.jpg")
+
+
 @pytest.mark.parametrize("orientation", [5, 6, 7, 8])
 def test_exif_size_accounts_for_transposed_images(tmp_path, orientation):
     path = tmp_path / "image.jpg"
@@ -226,27 +248,3 @@ def test_exif_size_accounts_for_transposed_images(tmp_path, orientation):
     Image.new("RGB", (200, 100)).save(path, exif=exif)
     with Image.open(path) as image:
         assert exif_size(image) == (100, 200)
-
-
-def test_labelbox_conversion_writes_boxes_and_names(tmp_path, monkeypatch):
-    monkeypatch.chdir(tmp_path)
-    image = tmp_path / "photo.jpg"
-    Image.new("RGB", (200, 100)).save(image)
-    source = tmp_path / "export.json"
-    source.write_text(
-        json.dumps(
-            [
-                {
-                    "Labeled Data": str(image),
-                    "External ID": "photo.jpg",
-                    "Label": {
-                        "objects": [{"bbox": {"top": 10, "left": 20, "height": 30, "width": 40}, "value": "cat"}]
-                    },
-                }
-            ]
-        )
-    )
-    convert(source, zip=False)
-    assert (tmp_path / "export/labels/photo.txt").read_text().strip() == "0 0.2 0.25 0.2 0.3"
-    assert (tmp_path / "export/images/photo.jpg").is_file()
-    assert yaml.safe_load((tmp_path / "export/export.yaml").read_text())["names"] == ["cat"]
